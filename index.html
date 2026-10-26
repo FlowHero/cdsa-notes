@@ -2,15 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CDSA Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDSA Notes — FlowHero</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #8b949e;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 4px 12px;
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: #58a6ff;
+      background: #161b22;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(88, 166, 255, 0.08);
+    }
+
+    .card-icon {
+      font-size: 1.6rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: #8b949e;
+      line-height: 1.5;
+    }
+
+    .card-arrow {
+      margin-top: auto;
+      font-size: 0.8rem;
+      color: #58a6ff;
+    }
+
+    footer {
+      margin-top: 60px;
+      font-size: 0.78rem;
+      color: #484f58;
+    }
+
+    footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>CDSA Notes</h1>
-  <ul>
-    <li><a href="DFIR & Malware Map.html">DFIR & Malware Map</a></li>
-    <li><a href="Windows Security Map.html">Windows Security Map</a></li>
-    <li><a href="SIEM & Hunting Map.html">SIEM & Hunting Map</a></li>
-    <li><a href="Network Security Map.html">Network Security Map</a></li>
-  </ul>
+
+  <header>
+    <h1>CDSA Notes</h1>
+    <p>HackTheBox Certified Defensive Security Analyst</p>
+    <span class="badge">FlowHero</span>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="DFIR%20%26%20Malware%20Map.html">
+      <div class="card-icon">🔬</div>
+      <div class="card-title">DFIR & Malware Map</div>
+      <div class="card-desc">Digital Forensics & Incident Response. Malware analysis techniques and investigation workflows.</div>
+      <div class="card-arrow">View map →</div>
+    </a>
+
+    <a class="card" href="Windows%20Security%20Map.html">
+      <div class="card-icon">🪟</div>
+      <div class="card-title">Windows Security Map</div>
+      <div class="card-desc">Windows internals, event logs, Active Directory, and defensive hardening strategies.</div>
+      <div class="card-arrow">View map →</div>
+    </a>
+
+    <a class="card" href="SIEM%20%26%20Hunting%20Map.html">
+      <div class="card-icon">🔭</div>
+      <div class="card-title">SIEM & Hunting Map</div>
+      <div class="card-desc">SIEM rules, threat hunting methodologies, detection engineering and log analysis.</div>
+      <div class="card-arrow">View map →</div>
+    </a>
+
+    <a class="card" href="Network%20Security%20Map.html">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Network Security Map</div>
+      <div class="card-desc">Network traffic analysis, protocol inspection, IDS/IPS and packet forensics.</div>
+      <div class="card-arrow">View map →</div>
+    </a>
+  </div>
+
+  <footer>
+    <a href="https://flowhero.github.io">flowhero.github.io</a> &mdash; HackTheBox CDSA Study Notes
+  </footer>
+
 </body>
 </html>
