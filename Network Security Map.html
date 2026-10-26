@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Network Security – Traffic Analysis &amp; IDS/IPS Knowledge Map</title>
+<style>
+:root {
+  --bg:#0d1117; --bg2:#161b22; --bg3:#21262d; --border:#30363d;
+  --text:#c9d1d9; --muted:#8b949e;
+  --red:#f85149; --red-d:#3d1212; --red-b:#7d2020;
+  --blue:#58a6ff; --blue-d:#0c1d3d; --blue-b:#1a4080;
+  --green:#3fb950; --green-d:#0c3d1d; --green-b:#1a6030;
+  --yellow:#e3b341; --yellow-d:#3d2c0c;
+  --purple:#bc8cff; --purple-d:#2d0c3d; --purple-b:#5a2e9a;
+  --orange:#f0883e; --orange-d:#3d1e0c;
+  --cyan:#76e3ea; --cyan-d:#0c2d3d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,sans-serif;font-size:13px;line-height:1.5}
+a{color:var(--blue);text-decoration:none}
+
+header{padding:28px 32px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+header h1{font-size:22px;font-weight:700;letter-spacing:.5px;color:#fff}
+header p{color:var(--muted);margin-top:4px;font-size:12px}
+
+.section{padding:24px 32px}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.note-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:start}
+.note-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative}
+.note-box.red{border-color:var(--red-b);background:var(--red-d)}
+.note-box.blue{border-color:var(--blue-b);background:var(--blue-d)}
+.note-box.green{border-color:var(--green-b);background:var(--green-d)}
+.note-box .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.badge-red{background:var(--red-b);color:var(--red)}
+.badge-blue{background:var(--blue-b);color:var(--blue)}
+.badge-green{background:var(--green-b);color:var(--green)}
+.badge-purple{background:var(--purple-b);color:var(--purple)}
+.badge-yellow{background:var(--yellow-d);color:var(--yellow)}
+.badge-orange{background:var(--orange-d);color:var(--orange)}
+.note-box h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.note-box .file{font-size:11px;color:var(--muted);font-family:monospace;margin-bottom:10px}
+.note-box ul{padding-left:14px;font-size:12px;display:flex;flex-direction:column;gap:3px}
+.note-box ul li{color:var(--text)}
+.flow-arrow{text-align:center;font-size:22px;color:var(--muted);padding:0 8px;padding-top:60px}
+
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue)}
+.filter-btn.active{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+
+.attack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s,transform .1s;cursor:pointer}
+.card:hover{border-color:var(--muted);transform:translateY(-1px)}
+.card.expanded{border-color:var(--blue)}
+.card-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-meta{flex:1}
+.card-meta h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.card-meta .desc{font-size:12px;color:var(--muted)}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px 10px}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tag-capture{background:#0a1a2a;color:var(--cyan);border:1px solid #0a3a4a}
+.tag-protocol{background:#1a1a2a;color:var(--purple);border:1px solid #2a2a4a}
+.tag-arp{background:#2a0c0c;color:#ff8080;border:1px solid #5a1a1a}
+.tag-wifi{background:#2a1a0a;color:var(--orange);border:1px solid #4a2a0a}
+.tag-evasion{background:var(--red-d);color:var(--red);border:1px solid var(--red-b)}
+.tag-tcp{background:#1a2a1a;color:var(--green);border:1px solid #2a4a2a}
+.tag-ids{background:var(--green-d);color:var(--green);border:1px solid var(--green-b)}
+.tag-zeek{background:#0c2d3d;color:var(--cyan);border:1px solid #1a4a5a}
+.tag-rules{background:var(--yellow-d);color:var(--yellow);border:1px solid #6a4a10}
+.tag-source{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
+
+.card-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.card.expanded .card-detail{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.detail-block{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px}
+.detail-block h5{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.detail-block p,.detail-block li{font-size:12px;color:var(--text)}
+.detail-block ul{padding-left:14px;display:flex;flex-direction:column;gap:3px}
+
+.chain-container{display:flex;flex-direction:column;gap:10px}
+.chain-row{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.chain-node{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text)}
+.chain-node.pivot{border-color:var(--red-b);color:var(--red);background:var(--red-d)}
+.chain-node.goal{border-color:var(--yellow-d);color:var(--yellow);background:var(--yellow-d)}
+.chain-node.detect{border-color:var(--green-b);color:var(--green);background:var(--green-d)}
+.chain-node.tool{border-color:var(--cyan-d);color:var(--cyan);background:#0c2030}
+.chain-arrow{color:var(--yellow);font-weight:700;margin:0 4px}
+.chain-label{font-size:11px;color:var(--muted);margin-left:auto;flex-shrink:0}
+
+.path-map{overflow-x:auto;padding-bottom:8px}
+.path-phases{display:flex;gap:0;align-items:flex-start;min-width:900px}
+.phase-col{flex:1;display:flex;flex-direction:column;gap:7px;padding:0 6px}
+.phase-header{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;padding:6px 4px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.path-node{border-radius:6px;padding:7px 10px;font-size:11px;font-weight:600;text-align:center;border:1px solid}
+.path-node.red{background:var(--red-d);border-color:var(--red-b);color:var(--red)}
+.path-node.blue{background:var(--blue-d);border-color:var(--blue-b);color:var(--blue)}
+.path-node.green{background:var(--green-d);border-color:var(--green-b);color:var(--green)}
+.path-node.yellow{background:var(--yellow-d);border-color:#6a4a10;color:var(--yellow)}
+.path-node.purple{background:var(--purple-d);border-color:var(--purple-b);color:var(--purple)}
+.path-node.orange{background:var(--orange-d);border-color:#6a3a10;color:var(--orange)}
+.path-node.cyan{background:#0c2030;border-color:#1a4a5a;color:var(--cyan)}
+.path-node.muted{background:var(--bg3);border-color:var(--border);color:var(--text)}
+.path-note{font-size:10px;color:var(--muted);text-align:center;padding:1px 4px;margin-top:-3px}
+.phase-arrow{display:flex;align-items:flex-start;justify-content:center;font-size:20px;color:var(--muted);padding:0 2px;flex-shrink:0;padding-top:34px}
+
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.theme-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.theme-num{font-size:20px;font-weight:800;color:var(--blue);opacity:.4;margin-bottom:4px}
+.theme-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px}
+.theme-body{font-size:12px;color:var(--muted);line-height:1.6}
+
+.event-table{width:100%;border-collapse:collapse;font-size:12px}
+.event-table th{background:var(--bg3);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.event-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.event-table tr:hover td{background:var(--bg2)}
+.event-table .eid{font-family:monospace;font-weight:700;color:var(--cyan);font-size:13px}
+
+.card.hidden{display:none}
+
+.cmd-tab{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.cmd-tab:hover{border-color:var(--blue);color:var(--blue)}
+.cmd-tab.active{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+.cmd-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.cmd-block-header{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer}
+.cmd-block-header:hover .cmd-title{color:var(--blue)}
+.cmd-type-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cmd-title{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.cmd-subtitle{font-size:11px;color:var(--muted);margin-top:2px}
+.cmd-bodies{padding:0 16px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.cmd-body{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cmd-body-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:6px 12px 4px;border-bottom:1px solid var(--border)}
+.cmd-pre-wrap{position:relative}
+.cmd-pre{font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:#e6edf3;background:var(--bg);padding:10px 44px 10px 14px;margin:0;white-space:pre-wrap;word-break:break-all;border:none;line-height:1.6}
+.copy-btn{position:absolute;top:7px;right:8px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+.copy-btn.copied{background:var(--green-d);border-color:var(--green-b);color:var(--green)}
+.cmd-block.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Network Security – Traffic Analysis &amp; IDS/IPS Knowledge Map</h1>
+  <p>Visual bridge across: <strong>Network_Traffic_Analysis.md</strong> &nbsp;|&nbsp; <strong>Network Traffic Analysis 2.md</strong> &nbsp;|&nbsp; <strong>Working with IDS IPS.md</strong></p>
+</header>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 1 – HOW THE 3 NOTES CONNECT
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">How the 3 Notes Connect</div>
+  <div class="note-flow">
+
+    <div class="note-box blue">
+      <span class="badge badge-blue">General · Tier 0 · 1d</span>
+      <h3>Intro to Network Traffic Analysis</h3>
+      <div class="file">Network_Traffic_Analysis.md</div>
+      <ul>
+        <li>NTA workflow — Ingest → Filter → Analyze → Detect</li>
+        <li>tcpdump — BPF capture &amp; display filters</li>
+        <li>Wireshark — streams, file extraction, TLS decrypt</li>
+        <li>tshark — field extraction at scale</li>
+        <li>TCP/IP · OSI model · 3-way handshake</li>
+        <li>Protocols: HTTP, HTTPS/TLS, FTP, SMB, DNS</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">attack<br>patterns in</span></div>
+
+    <div class="note-box red">
+      <span class="badge badge-red">Defensive · Tier II · 7h</span>
+      <h3>Intermediate NTA</h3>
+      <div class="file">Network Traffic Analysis 2.md</div>
+      <ul>
+        <li><strong>Part 1 — Link-Layer:</strong> ARP spoofing/MitM, ARP scanning &amp; DoS, 802.11 deauth (3 variants), Rogue AP &amp; Evil-Twin</li>
+        <li><strong>Part 2 — Network Abnormalities:</strong> Fragmentation evasion, IP spoofing (5 types), IP TTL attacks, TCP scan types (SYN/NULL/FIN/Xmas/ACK), TCP RST injection &amp; session hijacking, ICMP tunneling</li>
+        <li>5 cross-cutting detection themes</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">detected<br>by</span></div>
+
+    <div class="note-box green">
+      <span class="badge badge-green">Defensive · Tier II · 2d</span>
+      <h3>Working with IDS/IPS</h3>
+      <div class="file">Working with IDS IPS.md</div>
+      <ul>
+        <li>Suricata — IDS / IPS / NSM / IDPS modes</li>
+        <li>Suricata rule anatomy + C2 detection rules</li>
+        <li>Snort — preprocessors, Snort 3 syntax</li>
+        <li>Zeek — behavioral detection via structured logs</li>
+        <li>Beaconing, DNS exfil, TLS exfil, PsExec</li>
+        <li>JA3 fingerprinting, TLS certificate inspection</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--muted)">
+    <strong style="color:var(--yellow)">The Bridge:</strong>
+    &nbsp;Intro NTA teaches <em>how to read traffic</em> (tcpdump/Wireshark) &rarr;
+    Intermediate NTA shows <em>what attack patterns look like</em> across all OSI layers — from ARP to ICMP tunneling &rarr;
+    IDS/IPS shows <em>how to automate detection</em> via rules (Suricata/Snort) and behavioral analysis (Zeek).
+    The recurring theme: <strong style="color:var(--cyan)">unauthenticated protocols + uniform/impossible traffic patterns = detectable</strong>.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 2 – TOPIC CARDS
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Topic Cards – click to expand</div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+    <button class="filter-btn" onclick="filterCards('capture',this)">Capture Tools</button>
+    <button class="filter-btn" onclick="filterCards('arp',this)">ARP Attacks</button>
+    <button class="filter-btn" onclick="filterCards('wifi',this)">Wi-Fi Attacks</button>
+    <button class="filter-btn" onclick="filterCards('evasion',this)">Evasion / Spoofing</button>
+    <button class="filter-btn" onclick="filterCards('tcp',this)">TCP Scans</button>
+    <button class="filter-btn" onclick="filterCards('ids',this)">Suricata / Snort</button>
+    <button class="filter-btn" onclick="filterCards('zeek',this)">Zeek</button>
+    <button class="filter-btn" onclick="filterCards('rules',this)">Rule Writing</button>
+  </div>
+
+  <div class="attack-grid" id="attackGrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 3 – DETECTION CHAINS
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Detection Chains – from traffic to alert</div>
+  <div class="chain-container">
+
+    <div class="chain-row">
+      <div class="chain-node">ARP Spoof / MitM</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Wireshark arp.opcode</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">One IP mapped to two MACs</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">TCP drops? DoS. Symmetric traffic? MitM.</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">arp.duplicate-address-detected</div>
+      <div class="chain-label">Wireshark raises warning automatically</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">ARP Scan (recon)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">arp.opcode == 1</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Sequential IPs from single src + requests to non-existent hosts</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Nmap ARP sweep pattern</div>
+      <div class="chain-label">broadcast = readily detectable</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">802.11 Deauth Attack</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">wlan.fc.type_subtype == 12</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Excessive deauths · reason code 7 (default tool)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Revolving codes? cycling 1,2,3… = stealth variant</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Client kicked + WPA handshake captured</div>
+      <div class="chain-label">aireplay-ng / mdk4 default reason = 7</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">Evil-Twin AP</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">wlan.fc.type_subtype == 8 (beacons)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Two BSSIDs, same ESSID — one OPN, one WPA2</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">OPN = no RSN info in beacon</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">ARP probes to evil-twin BSSID = victim connected</div>
+      <div class="chain-label">check vendor-specific tags if cipher matches</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">Fragmentation Evasion (nmap -f)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Tiny-MTU fragments flood (10 bytes)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">IDS inspects before reassembly = blind</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">After reassembly: 1 src → many ports + RST replies</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Port scan pattern exposed</div>
+      <div class="chain-label">Wireshark: IPv4 → Reassemble fragments</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">IP TTL Evasion</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Packet B: TTL expires after IDS, before target</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">IDS reassembles A+B = clean · Target sees only A = attack</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">SYN/ACK at target with no matching sensor-logged SYN + ICMP Time Exceeded flood</div>
+      <div class="chain-label">TTL normalization closes the gap</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">TCP Scan (NULL / FIN / Xmas)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">tcp.flags == 0x000 / 0x001 / 0x029</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">1 src → many ports · illegal flag combos</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Open: no response · Closed: RST</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Port scan — evades stateful firewalls</div>
+      <div class="chain-label">no SYN = no "established" log entry</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">TCP Session Hijacking</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">ARP poison (MitM) → read seq numbers</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Inject spoofed packet (src = client IP, predicted seq)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Block real client ACKs to suppress ACK storm</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">ACK storm · duplicate seq · IP↔MAC mismatch</div>
+      <div class="chain-label">ARP poison needed twice</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">ICMP Tunneling</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Wireshark: icmp filter</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">ICMP data length &gt; 48 bytes (normal ping ≈ 48)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Cleartext in data pane OR base64-encoded payload</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Exfil confirmed: echo 'b64' | base64 -d</div>
+      <div class="chain-label">can be ~38000 bytes + ICMP fragmentation</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">C2 Beaconing (Empire)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Zeek conn.log</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Same dst_h · periodic ts deltas (~5s) · consistent orig_bytes</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Alert: Beaconing pattern</div>
+      <div class="chain-label">Empire default interval = 5s</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">DNS Tunneling</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Zeek dns.log</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Hundreds of subdomains under 1 domain · hex-encoded labels</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">Alert: DNS Exfil</div>
+      <div class="chain-label">zeek-cut query | cut -d . -f1-7</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node">PsExec Lateral Movement</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Zeek smb_files.log</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">PSEXESVC.exe FILE_OPEN on ADMIN$</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node tool">Zeek dce_rpc.log</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node detect">CreateServiceW → StartServiceW → DeleteService</div>
+      <div class="chain-label">svcctl via IPC$ named pipe</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 4 – NTA WORKFLOW MAP
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">NTA Workflow &amp; Tool Placement</div>
+  <div class="path-map">
+    <div class="path-phases">
+
+      <div class="phase-col">
+        <div class="phase-header">① Ingest Traffic</div>
+        <div class="path-node blue">tcpdump -i eth0 -w capture.pcap</div>
+        <div class="path-note">BPF capture filter at start</div>
+        <div class="path-node blue">airodump-ng -c &lt;ch&gt; --bssid &lt;AP&gt;</div>
+        <div class="path-note">802.11 monitor mode capture</div>
+        <div class="path-node blue">Network tap / SPAN port</div>
+        <div class="path-note">passive copy, no interaction</div>
+        <div class="path-node cyan">Suricata NSM mode</div>
+        <div class="path-note">full PCAP logging</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <div class="phase-col">
+        <div class="phase-header">② Reduce Noise</div>
+        <div class="path-node muted">BPF capture filter</div>
+        <div class="path-note">host, port, proto — at capture time</div>
+        <div class="path-node muted">Wireshark display filter</div>
+        <div class="path-note">post-capture, doesn't discard packets</div>
+        <div class="path-node muted">Exclude broadcast/multicast</div>
+        <div class="path-note">not (arp or broadcast)</div>
+        <div class="path-node muted">zeek-cut columns</div>
+        <div class="path-note">extract only needed fields</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <div class="phase-col">
+        <div class="phase-header">③ Analyze &amp; Explore</div>
+        <div class="path-node purple">Follow TCP Stream</div>
+        <div class="path-note">reconstruct full conversations</div>
+        <div class="path-node purple">Export HTTP / SMB objects</div>
+        <div class="path-note">File → Export Objects</div>
+        <div class="path-node purple">arp.duplicate-address-detected</div>
+        <div class="path-note">Wireshark auto-flags ARP spoof</div>
+        <div class="path-node purple">Zeek structured logs</div>
+        <div class="path-note">conn, dns, http, ssl, dce_rpc, smb</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <div class="phase-col">
+        <div class="phase-header">④ Detect &amp; Alert</div>
+        <div class="path-node red">Suricata rules</div>
+        <div class="path-note">content, pcre, ja3.hash, dsize</div>
+        <div class="path-node red">Snort rules</div>
+        <div class="path-note">signature + preprocessors</div>
+        <div class="path-node orange">Zeek behavioral</div>
+        <div class="path-note">beaconing, exfil volume, subdomain bursts</div>
+        <div class="path-node orange">detection_filter</div>
+        <div class="path-note">count/threshold per src/dst</div>
+      </div>
+
+      <div class="phase-arrow">→</div>
+
+      <div class="phase-col">
+        <div class="phase-header">⑤ Respond</div>
+        <div class="path-node green">Suricata IPS drop</div>
+        <div class="path-note">NFQ / AF_PACKET inline</div>
+        <div class="path-node green">Isolate at switch/router</div>
+        <div class="path-note">ARP/802.11 attacks: physical containment</div>
+        <div class="path-node yellow">SIEM correlation</div>
+        <div class="path-note">eve.json → Elasticsearch / Splunk</div>
+        <div class="path-node yellow">Live rule reload</div>
+        <div class="path-note">kill -usr2 $(pidof suricata)</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 5 – CROSS-CUTTING THEMES
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Cross-Cutting Detection Themes</div>
+  <div class="theme-grid">
+
+    <div class="theme-card">
+      <div class="theme-num">01</div>
+      <div class="theme-title">Spoofing buys stealth but causes blindness</div>
+      <div class="theme-body">Forging a source IP means replies go elsewhere — so recon/hijack spoofing is almost always <span style="color:var(--orange)">paired with ARP poisoning/MitM</span> to recover responses. <em>That pairing is usually what exposes the attack.</em></div>
+    </div>
+
+    <div class="theme-card">
+      <div class="theme-num">02</div>
+      <div class="theme-title">Bind IP ↔ MAC ↔ behaviour ↔ timing</div>
+      <div class="theme-body">Signatures get evaded (fragmentation, TTL, decoys); the <span style="color:var(--cyan)">mismatches don't</span> — IP/MAC inconsistency, trusted source at the wrong time, a device acting unlike its baseline. Strongest detection lever.</div>
+    </div>
+
+    <div class="theme-card">
+      <div class="theme-num">03</div>
+      <div class="theme-title">Make your device act like the destination host</div>
+      <div class="theme-body"><span style="color:var(--yellow)">Delayed reassembly</span> (fragmentation), <span style="color:var(--yellow)">TTL normalization</span> (TTL evasion), <span style="color:var(--yellow)">full session reconstruction</span> (decoy/overlap) — all collapse the sensor-vs-host gap that evasion exploits.</div>
+    </div>
+
+    <div class="theme-card">
+      <div class="theme-num">04</div>
+      <div class="theme-title">Crafted traffic is uniform; real traffic is messy</div>
+      <div class="theme-body">Identical lengths, non-random base ports, unsolicited replies, implausible TTLs, illegal flag combos — <span style="color:var(--red)">uniformity and impossibility</span> are the tells. Real traffic has natural variation.</div>
+    </div>
+
+    <div class="theme-card" style="grid-column:1/-1">
+      <div class="theme-num">05</div>
+      <div class="theme-title">Unauthenticated protocols are the root cause</div>
+      <div class="theme-body"><span style="color:var(--red)">ARP</span> (no auth) · <span style="color:var(--red)">802.11 management frames</span> (unauthenticated on WPA2) · <span style="color:var(--red)">IP source field</span> (no integrity check). Modern fixes authenticate or validate: <span style="color:var(--green)">DAI</span> (Dynamic ARP Inspection) · <span style="color:var(--green)">802.11w / WPA3</span> (PMF) · <span style="color:var(--green)">BCP 38 ingress filtering</span> (IP spoofing). The pattern: bolt-on fixes for protocols designed without adversaries in mind.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 6 – TOOL COMPARISON
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Suricata vs Snort vs Zeek</div>
+  <table class="event-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th style="color:var(--orange)">Suricata</th>
+        <th style="color:var(--blue)">Snort 3</th>
+        <th style="color:var(--cyan)">Zeek</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Mode</td><td>IDS / IPS / IDPS / NSM</td><td>IDS / IPS / Sniffer</td><td>Passive NSM only</td></tr>
+      <tr><td>Blocking</td><td style="color:var(--green)">Yes (NFQ / AF_PACKET inline)</td><td style="color:var(--green)">Yes (-Q + DAQ afpacket)</td><td style="color:var(--red)">No — generates facts, not alerts</td></tr>
+      <tr><td>Detection approach</td><td>Signature + anomaly + stateful</td><td>Signature + stateful preprocessors</td><td>Behavioral + semantic + scripting</td></tr>
+      <tr><td>Rule / script language</td><td>.rules files + Lua</td><td>.rules files (snort.lua config)</td><td>Zeek scripting language (.zeek)</td></tr>
+      <tr><td>Multi-threading</td><td style="color:var(--green)">Native</td><td>Limited</td><td style="color:var(--green)">Yes</td></tr>
+      <tr><td>Main output</td><td>eve.json · fast.log · stats.log</td><td>alert_fast.txt · unified2</td><td>conn.log · dns.log · http.log · ssl.log…</td></tr>
+      <tr><td>JA3 fingerprinting</td><td style="color:var(--green)">ja3.hash keyword native</td><td style="color:var(--muted)">Via preprocessor</td><td style="color:var(--green)">ssl.log ja3 column</td></tr>
+      <tr><td>File extraction</td><td style="color:var(--green)">file-store in suricata.yaml</td><td style="color:var(--muted)">Limited</td><td style="color:var(--green)">files.log + extract scripts</td></tr>
+      <tr><td>Best for</td><td>High-speed sig detection + IPS</td><td>Battle-tested sig detection</td><td>Deep visibility, hunting, forensics</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SECTION 7 – COMMAND REFERENCE
+══════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Command Reference</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="cmdTabs">
+    <button class="cmd-tab active" onclick="switchTab('tcpdump',this)">tcpdump</button>
+    <button class="cmd-tab" onclick="switchTab('tshark',this)">Wireshark / tshark</button>
+    <button class="cmd-tab" onclick="switchTab('filters',this)">Attack Filters</button>
+    <button class="cmd-tab" onclick="switchTab('suricata',this)">Suricata</button>
+    <button class="cmd-tab" onclick="switchTab('snort',this)">Snort</button>
+    <button class="cmd-tab" onclick="switchTab('zeek',this)">Zeek</button>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <input id="cmdSearch" type="text" placeholder="Search commands, techniques, tools…"
+      oninput="filterCmds()"
+      style="width:100%;max-width:500px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;outline:none"/>
+  </div>
+
+  <div id="cmdGrid" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<script>
+// ── CARDS DATA ─────────────────────────────────────────────────────────────
+const cards = [
+  {
+    id:"tcpdump", cats:["capture"],
+    icon:"🔬", iconBg:"#0c2d3d",
+    title:"tcpdump", desc:"CLI packet sniffer — BPF syntax, libpcap",
+    tags:[{t:"Capture Tool",cls:"tag-capture"},{t:"BPF",cls:"tag-capture"},{t:"Intro NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Core Options",items:[
+        "<code>-i eth0</code> — select interface","<code>-D</code> — list interfaces",
+        "<code>-w file.pcap</code> — write to file","<code>-r file.pcap</code> — read from file",
+        "<code>-v / -vv / -vvv</code> — verbosity","<code>-n</code> — no DNS resolution",
+        "<code>-X</code> — hex + ASCII output","<code>-c N</code> — capture N packets",
+        "<code>-A</code> — ASCII-only output"
+      ]},
+      right:{title:"BPF Filter Examples",items:[
+        "<code>host 10.0.0.1</code>","<code>port 443</code>","<code>tcp and port 80</code>",
+        "<code>not port 22</code>","<code>src host 10.0.0.5</code>",
+        "<code>greater 1000</code> — packets &gt;1000 bytes",
+        "<code>net 192.168.1.0/24</code>","<code>icmp</code>","<code>arp</code>"
+      ]}
+    }
+  },
+  {
+    id:"wireshark", cats:["capture"],
+    icon:"🦈", iconBg:"#0c1d3d",
+    title:"Wireshark / tshark", desc:"GUI &amp; CLI analyzer — deep protocol dissection, file extraction",
+    tags:[{t:"Capture Tool",cls:"tag-capture"},{t:"Display Filters",cls:"tag-capture"},{t:"Intro NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Key Workflows",items:[
+        "Follow TCP Stream: right-click → Follow → TCP (or <code>tcp.stream eq 0</code>)",
+        "File → Export Objects → HTTP (executables, scripts, docs)",
+        "File → Export Objects → SMB (lateral movement artifacts)",
+        "TLS decrypt: set SSLKEYLOGFILE env → load in Preferences → TLS",
+        "IPv4 reassembly: Preferences → Protocols → IPv4 → Reassemble fragments",
+        "<code>ftp.request.command</code> → USER, PASS, filenames",
+        "<code>ftp-data</code> → actual file bytes → Follow stream → Save Raw"
+      ]},
+      right:{title:"tshark Field Extraction",items:[
+        "<code>tshark -r file.pcap -T fields -e ip.src -e ip.dst</code>",
+        "<code>tshark -i 1 -f \"port 53\" -T fields -e dns.qry.name -a duration:30</code>",
+        "<code>tshark -Y \"dns.flags.rcode==3\" -T fields -e dns.qry.name</code>",
+        "<code>tshark -r file.pcap -Y \"tls.handshake.type==1\" -T fields -e tls.handshake.ja3</code>",
+        "<code>tshark -r file.pcap -Y \"http\" -T fields -e http.user_agent</code>",
+        "ICMP check: <code>icmp</code> filter → inspect data length in packet details"
+      ]}
+    }
+  },
+  {
+    id:"arp-spoof", cats:["arp"],
+    icon:"☠️", iconBg:"#2a0c0c",
+    title:"ARP Spoofing &amp; MitM", desc:"Poison ARP caches to redirect traffic — DoS or full MitM",
+    tags:[{t:"ARP",cls:"tag-arp"},{t:"MitM",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"How It Works",items:[
+        "ARP = stateless, unauthenticated — accepts unsolicited replies",
+        "Attacker sends forged ARP to victim: 'gateway IP → my MAC'",
+        "Attacker sends forged ARP to router: 'victim IP → my MAC'",
+        "Both caches corrupted → all traffic misdirected to attacker",
+        "<strong>DoS</strong>: attacker doesn't forward → connections drop",
+        "<strong>MitM</strong>: attacker enables forwarding → intercepts silently",
+        "MitM chains into: DNS spoofing, SSL stripping"
+      ]},
+      right:{title:"Detection Filters",items:[
+        "<code>arp.opcode</code> — all requests + replies",
+        "<code>arp.opcode == 1</code> — requests only",
+        "<code>arp.opcode == 2</code> — replies only",
+        "<code>arp.duplicate-address-detected && arp.opcode == 2</code>",
+        "<code>(arp.opcode) && ((eth.src == &lt;MAC&gt;) | (eth.dst == &lt;MAC&gt;))</code> — find MAC's original IP",
+        "Attacker = MAC that <em>recently changed its IP</em>",
+        "MitM tell: symmetric victim↔attacker↔router traffic",
+        "<strong>Defense:</strong> static ARP entries · switch port security · DAI"
+      ]}
+    }
+  },
+  {
+    id:"arp-scan", cats:["arp"],
+    icon:"📡", iconBg:"#2a0c0c",
+    title:"ARP Scanning &amp; DoS", desc:"ARP-based network recon and subnet-wide cache poisoning",
+    tags:[{t:"ARP",cls:"tag-arp"},{t:"Recon",cls:"tag-source"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"ARP Scan Signs",items:[
+        "Broadcast ARP requests to sequential IPs (.1, .2, .3…)",
+        "Requests to non-existent hosts (no reply)",
+        "Unusual volume of ARP from one host",
+        "Filter <code>arp.opcode == 1</code>: single host → every sequential IP = Nmap ARP sweep",
+        "Broadcast = readily detectable even without IDS",
+        "Active hosts replying = recon succeeded (attacker maps live hosts)"
+      ]},
+      right:{title:"ARP DoS (subnet-wide)",items:[
+        "After recon: attacker poisons the whole subnet",
+        "Declares new MACs for <strong>all live IPs</strong> → corrupts router cache",
+        "Duplicate-allocates gateway .1 to clients → corrupts victim caches",
+        "Blocks traffic both directions — also sets up MitM",
+        "<strong>Response:</strong> locate physical machine (may be compromised/remote-controlled)",
+        "<strong>Containment:</strong> isolate at switch/router → kills DoS/MitM at source",
+        "Link-layer attacks enable higher-layer exfiltration if missed"
+      ]}
+    }
+  },
+  {
+    id:"deauth", cats:["wifi"],
+    icon:"📶", iconBg:"#3d1e0c",
+    title:"802.11 Deauthentication Attacks", desc:"3 variants of Wi-Fi link-layer DoS via unauthenticated mgmt frames",
+    tags:[{t:"Wi-Fi",cls:"tag-wifi"},{t:"DoS",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Attack Variants",items:[
+        "<strong>3a. Deauth/Disassoc:</strong> forge deauth spoofing AP's BSSID → client disconnects",
+        "Motives: capture WPA handshake · DoS · force onto evil-twin",
+        "Direction: target client (spoof AP), target AP (spoof client), or broadcast ff:ff:ff:ff:ff:ff",
+        "<strong>Reason code 7</strong> = default for aireplay-ng / mdk4",
+        "<strong>3b. Revolving reason codes:</strong> cycle 1,2,3… to evade WIDS rules keyed to single code",
+        "<strong>3c. Failed auth/assoc floods:</strong> subtypes 0 (assoc req), 1 (assoc resp), 11 (auth)"
+      ]},
+      right:{title:"Filters &amp; Defense",items:[
+        "<code>wlan.bssid == xx:xx:xx:xx:xx:xx</code>",
+        "<code>(wlan.fc.type==00) and (wlan.fc.type_subtype==12)</code> — deauth",
+        "<code>... and (wlan.fixed.reason_code == 7)</code> — default tool code",
+        "Type 00 = management · subtype 12 = deauth",
+        "Capture requires: monitor mode interface (<code>airmon-ng start wlan0</code>)",
+        "Analysis: no router access needed — capture from the air",
+        "<strong>Defense:</strong> 802.11w PMF · WPA3-SAE (mandates PMF) · tuned WIDS/WIPS"
+      ]}
+    }
+  },
+  {
+    id:"eviltwin", cats:["wifi"],
+    icon:"👥", iconBg:"#3d1e0c",
+    title:"Evil-Twin vs Rogue AP", desc:"Two distinct unauthorized AP threat types at opposite ends",
+    tags:[{t:"Wi-Fi",cls:"tag-wifi"},{t:"MitM",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Rogue AP",items:[
+        "Physically <strong>connected to your LAN</strong> (insider / physical access)",
+        "Bypasses perimeter: firewall, NAC, segmentation, air-gaps",
+        "Goal: backdoor into internal network, not credential theft",
+        "Detect: network device lists, switch port inventory",
+        "Look for: unexpected strong SSID near premises, especially open/unencrypted"
+      ]},
+      right:{title:"Evil-Twin",items:[
+        "<strong>NOT connected to your LAN</strong> — standalone clone",
+        "Clones your ESSID, usually open (no WPA/RSN)",
+        "Paired with deauth to force clients onto it",
+        "Goal: MitM / hostile portal — steal credentials, intercept traffic",
+        "Detection: <code>(wlan.fc.type==00) and (wlan.fc.type_subtype==8)</code>",
+        "Real AP: RSN = WPA2/AES/PSK · Evil-twin: RSN missing from beacon",
+        "Find victim: <code>wlan.bssid == &lt;evil-twin&gt;</code> → ARP probes from client"
+      ]}
+    }
+  },
+  {
+    id:"fragmentation", cats:["evasion"],
+    icon:"🧩", iconBg:"#3d1212",
+    title:"Fragmentation Attacks", desc:"Splitting packets to evade IDS/IPS signature matching",
+    tags:[{t:"Evasion",cls:"tag-evasion"},{t:"IDS Bypass",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Attack Mechanics",items:[
+        "IP splits large packets into fragments with fragment offset",
+        "<strong>No integrity checking at the IP layer</strong>",
+        "<code>nmap -f 10 &lt;host&gt;</code> — fragment to max 10-byte MTU",
+        "IDS without delayed reassembly: sees slivers → no signature match → passes",
+        "Resource exhaustion: flood tiny fragments → control can't reassemble → forwards",
+        "Ping of death: fragments reassemble to &gt;65535 bytes → crash old hosts"
+      ]},
+      right:{title:"Detection",items:[
+        "Excessive tiny fragments from one source = suspicious",
+        "Normal traffic rarely fragments to 10 bytes",
+        "<strong>Strongest tell:</strong> 1 src → many dst ports + RST replies = port scan",
+        "Fragmentation is the evasion wrapper; scan pattern underneath gives it away",
+        "Wireshark: Preferences → Protocols → IPv4 → Reassemble fragmented datagrams",
+        "<strong>Defense:</strong> IDS must perform delayed reassembly before inspection"
+      ]}
+    }
+  },
+  {
+    id:"ipspoofing", cats:["evasion"],
+    icon:"🎭", iconBg:"#3d1212",
+    title:"IP Source Spoofing — 5 Types", desc:"Forging source IP for evasion, reflected DoS, and session theft",
+    tags:[{t:"Evasion",cls:"tag-evasion"},{t:"DoS",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Attack Types",items:[
+        "<strong>Decoy scan:</strong> mix fake + real src IPs; attacker's real IP still appears (needs replies)",
+        "<strong>Random source:</strong> randomized sources → exhaust service/port; tells: incremental base port + identical length fields",
+        "<strong>SMURF:</strong> spoof victim's IP as src → broadcast ICMP → flood victim with replies",
+        "<strong>LAND:</strong> src IP = dst IP → host sends to itself → port exhaustion / crash",
+        "<strong>Reverse SMURF:</strong> many fake hosts ping one victim → victim exhausts replying to ghosts"
+      ]},
+      right:{title:"Detection & Defense",items:[
+        "Core rule: src IP must match the subnet it arrives from",
+        "Inbound packet claiming local source = crafted",
+        "Outbound packet with external source = crafted",
+        "Decoy: connection started by one host, answered to another",
+        "Random source: identical lengths + non-random base ports = crafted",
+        "LAND: <code>src IP == dst IP</code> in packet header",
+        "Spoofing → blind → pair with ARP poison → ARP anomalies expose it",
+        "<strong>Defense:</strong> BCP 38 ingress/egress filtering · IDS acting as destination host"
+      ]}
+    }
+  },
+  {
+    id:"ttl", cats:["evasion"],
+    icon:"⏱️", iconBg:"#3d1212",
+    title:"IP TTL Attacks", desc:"Tune TTL so a decoy packet expires between IDS and target",
+    tags:[{t:"Evasion",cls:"tag-evasion"},{t:"IDS Bypass",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"The Evasion Mechanism",items:[
+        "Each router decrements TTL by 1; at 0 → dropped → ICMP Time Exceeded",
+        "Attacker sends two packets at the <strong>same TCP sequence position</strong>:",
+        "<strong>Packet A:</strong> TTL high enough → passes IDS <em>and</em> reaches target (real payload)",
+        "<strong>Packet B:</strong> TTL tuned to expire <em>after IDS, before target</em> (harmless decoy)",
+        "IDS reassembles A+B → looks clean → passes",
+        "Target receives only A → gets the attack",
+        "B is <em>physically gone</em> from target's input — mismatch guaranteed (beats overlap tricks)"
+      ]},
+      right:{title:"Detection & Defense",items:[
+        "SYN/ACK at target with <strong>no matching sensor-logged SYN</strong>",
+        "Probe reached host but expired at/before your sensor",
+        "Implausibly low TTLs vs real hop distance (8 hops ≈ TTL 56; TTL 2 = crafted)",
+        "Flood of ICMP Time Exceeded messages",
+        "<strong>Defense — TTL normalization:</strong> firewall rewrites TTL to fixed value",
+        "Sensor and target now agree on which packets they see",
+        "Baseline expected TTL per source; drop implausibly low"
+      ]}
+    }
+  },
+  {
+    id:"tcp-scans", cats:["tcp"],
+    icon:"🚩", iconBg:"#1a2a0a",
+    title:"TCP Handshake Abnormalities", desc:"SYN, NULL, FIN, Xmas, ACK scans — flag abuse for stealth recon",
+    tags:[{t:"TCP Scans",cls:"tag-tcp"},{t:"Recon",cls:"tag-source"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Scan Types",items:[
+        "<strong>SYN (stealth):</strong> SYN → SYN/ACK (open) or RST (closed); attacker RSTs before full handshake → evades some logging",
+        "<strong>NULL:</strong> no flags set (<code>tcp.flags==0x000</code>); open=no response, closed=RST",
+        "<strong>FIN:</strong> FIN only (<code>tcp.flags==0x001</code>); open=no response, closed=RST",
+        "<strong>Xmas:</strong> FIN+PSH+URG (<code>tcp.flags==0x029</code>); open=no response, closed=RST",
+        "<strong>ACK:</strong> ACK only (<code>tcp.flags==0x010</code>); used to map firewall rules; no response or RST",
+        "NULL/FIN/Xmas evade stateful firewalls — no SYN = no 'established' entry"
+      ]},
+      right:{title:"Detection & Flags Reference",items:[
+        "<code>tcp.flags.syn==1 && tcp.flags.ack==0</code> — SYN scan/flood",
+        "<code>tcp.flags==0x000</code> — NULL scan",
+        "<code>tcp.flags==0x001</code> — FIN scan",
+        "<code>tcp.flags==0x029</code> — Xmas scan (FIN+PSH+URG)",
+        "<code>tcp.flags.ack==1 && tcp.flags==0x010</code> — ACK scan",
+        "Strange conditions: too many of one flag · illegal combos · 1 host → many ports",
+        "TCP flags: URG · ACK · PSH · RST · SYN · FIN · ECN",
+        "PSH: push data past TCP buffer directly to app"
+      ]}
+    }
+  },
+  {
+    id:"tcp-hijack", cats:["tcp","evasion"],
+    icon:"✂️", iconBg:"#3d1212",
+    title:"TCP RST Injection &amp; Session Hijacking", desc:"Force-terminate sessions or steal live authenticated connections",
+    tags:[{t:"TCP Scans",cls:"tag-tcp"},{t:"MitM",cls:"tag-evasion"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"RST Injection (9a)",items:[
+        "Attacker spoofs RST into an existing connection to force-terminate it",
+        "RST's seq# must fall in the receiver's window (same prediction as hijacking)",
+        "Legitimate RST: closed port, app error",
+        "Malicious: DoS disruption, censorship (e.g. GFW)",
+        "<strong>Detection:</strong> unexpected RSTs mid-session on healthy connections",
+        "RST with in-window-but-out-of-place seq · bursts of RSTs",
+        "Same IP, different MAC if MitM is involved"
+      ]},
+      right:{title:"Session Hijacking (9b)",items:[
+        "1. ARP poison (MitM) → read current sequence numbers",
+        "2. Predict next expected seq# → craft matching packet",
+        "3. Inject: src IP = legitimate client, correct seq → server accepts",
+        "4. Block real client's ACKs → suppress ACK storm (keeps hijack alive)",
+        "ARP poisoning needed twice: to read seq# AND suppress resync",
+        "<strong>Indicators:</strong> ACK storm · duplicate/unexpected seq · same IP diff MAC · ARP anomalies",
+        "Analogy: guess next word in a conversation (seq), spoof the speaker (IP), cover their mouth (block ACKs)"
+      ]}
+    }
+  },
+  {
+    id:"icmp-tunnel", cats:["evasion"],
+    icon:"🕳️", iconBg:"#3d1212",
+    title:"ICMP Tunneling", desc:"Exfiltrate data through ICMP echo by hiding payload in the data field",
+    tags:[{t:"Evasion",cls:"tag-evasion"},{t:"Exfil",cls:"tag-source"},{t:"Intermediate NTA",cls:"tag-source"}],
+    details:{
+      left:{title:"Concept &amp; Detection",items:[
+        "Tunneling exfiltrates via an allowed protocol (ICMP, DNS, HTTP, SSH)",
+        "ICMP tunneling: appends exfil data to the <strong>ICMP echo data field</strong>",
+        "Hides among normal ping traffic on allowed networks",
+        "<strong>Normal ping ≈ 48 bytes. Rule of thumb: &gt;48 bytes = investigate.</strong>",
+        "Tunnel can reach ~38,000 bytes + triggers ICMP fragmentation",
+        "Cleartext example: 'Username: root; Password: …' pinged to external host",
+        "Advanced: base64/encrypted data in the field"
+      ]},
+      right:{title:"Wireshark Analysis",items:[
+        "Filter: <code>icmp</code>",
+        "Inspect data per request/reply in Packet Details pane",
+        "Tells: large data length · ICMP fragmentation · readable strings",
+        "For encoded: copy base64 string → <code>echo 'b64' | base64 -d</code>",
+        "<strong>Prevention:</strong> block ICMP where not needed",
+        "Inspect/strip data from ICMP requests &amp; replies at perimeter",
+        "Other tunneling protocols: DNS, HTTP/S, SSH — same detection pattern (anomalous data volume in normally small payloads)"
+      ]}
+    }
+  },
+  {
+    id:"suricata", cats:["ids"],
+    icon:"⚡", iconBg:"#0c3d1d",
+    title:"Suricata", desc:"High-performance IDS / IPS / NSM with native multi-threading",
+    tags:[{t:"IDS/IPS",cls:"tag-ids"},{t:"NSM",cls:"tag-ids"},{t:"IDS/IPS module",cls:"tag-source"}],
+    details:{
+      left:{title:"Operation Modes",items:[
+        "<strong>IDS</strong> — passive, alerts only, no blocking",
+        "<strong>IPS</strong> — inline, actively blocks threats",
+        "<strong>IDPS</strong> — hybrid, passive + TCP RST packets",
+        "<strong>NSM</strong> — logging only, post-incident analysis",
+        "Inputs: LibPCAP (offline/live) · NFQ · AF_PACKET",
+        "AF_PACKET = best performance, multi-threading",
+        "NFQ = Linux IPS via iptables NFQUEUE"
+      ]},
+      right:{title:"Key Outputs",items:[
+        "<code>eve.json</code> — all events in rich JSON (recommended)",
+        "<code>fast.log</code> — alerts only, text format",
+        "<code>stats.log</code> — performance stats",
+        "<code>flow_id</code> — links all events of same connection",
+        "<code>event_type</code>: alert, dns, http, tls, ssh…",
+        "File extraction: file-store in suricata.yaml",
+        "<code>jq -c 'select(.event_type==\"alert\")'</code>"
+      ]}
+    }
+  },
+  {
+    id:"snort", cats:["ids"],
+    icon:"🐷", iconBg:"#0c1d3d",
+    title:"Snort 3", desc:"Industry-standard IDS/IPS with preprocessor architecture",
+    tags:[{t:"IDS/IPS",cls:"tag-ids"},{t:"Signatures",cls:"tag-rules"},{t:"IDS/IPS module",cls:"tag-source"}],
+    details:{
+      left:{title:"Architecture",items:[
+        "Packet Decoder → Preprocessors → Detection Engine → Output",
+        "Preprocessors: normalize protocols before detection",
+        "Examples: http plugin, port_scan preprocessor",
+        "Snort 3 config: snort.lua + snort_defaults.lua",
+        "Passive IDS: -r file.pcap or -i interface",
+        "Inline IPS: -Q flag + DAQ afpacket",
+        "Output: alert_fast.txt, unified2 binary"
+      ]},
+      right:{title:"Key Notes",items:[
+        "dsize = TCP segment payload, NOT total packet length",
+        "Snort 2 vs 3 syntax differs — check your version",
+        "Compatible with Suricata ET Open rules",
+        "<code>detection_filter: track by_src, count N, seconds N</code>",
+        "<code>-A cmg</code> — console + raw output for debugging",
+        "Cerber: 9-byte UDP, 'hi' + 7 hex chars pattern",
+        "Patchwork: HTTP POST .php?profile= + ddager= body"
+      ]}
+    }
+  },
+  {
+    id:"zeek", cats:["zeek"],
+    icon:"🔍", iconBg:"#0c2d3d",
+    title:"Zeek", desc:"Passive behavioral analyzer — generates structured facts, not alerts",
+    tags:[{t:"Zeek",cls:"tag-zeek"},{t:"Behavioral",cls:"tag-zeek"},{t:"IDS/IPS module",cls:"tag-source"}],
+    details:{
+      left:{title:"Key Log Files",items:[
+        "<code>conn.log</code> — all connections: IPs, ports, bytes, duration, state",
+        "<code>dns.log</code> — queries, responses, TTL, answer",
+        "<code>http.log</code> — host, URI, method, UA, status, resp size",
+        "<code>ssl.log</code> — TLS metadata + ja3 column",
+        "<code>smb_files.log</code> — SMB file ops (OPEN, DELETE)",
+        "<code>dce_rpc.log</code> — pipe, endpoint, operation",
+        "<code>smtp.log</code> — sender, recipient"
+      ]},
+      right:{title:"Architecture &amp; Notes",items:[
+        "Event Engine → converts packets to high-level events",
+        "Script Interpreter → .zeek scripts define policy",
+        "<strong>Zeek never generates alerts — it generates FACTS</strong>",
+        "Turn facts into alerts via Splunk SPL or grep patterns",
+        "<code>zeek-cut</code>: extract specific log columns",
+        "Logs compressed hourly: use gzcat / zgrep",
+        "Protocol-agnostic: HTTP on :9999 still detected as HTTP"
+      ]}
+    }
+  },
+  {
+    id:"suricata-rules", cats:["rules","ids"],
+    icon:"📜", iconBg:"#0c3d1d",
+    title:"Suricata Rule Anatomy", desc:"Rule structure, sticky buffers, encrypted traffic detection",
+    tags:[{t:"Rule Writing",cls:"tag-rules"},{t:"Suricata",cls:"tag-ids"},{t:"IDS/IPS module",cls:"tag-source"}],
+    details:{
+      left:{title:"Rule Structure &amp; Core Keywords",items:[
+        "<code>action proto src_ip src_port -&gt; dst dst_port (opts)</code>",
+        "Actions: alert · log · pass · drop (IPS) · reject",
+        "<code>content</code> — match string or hex bytes",
+        "<code>nocase</code> — case-insensitive","<code>offset / depth</code> — where in payload",
+        "<code>distance / within</code> — relative to previous match",
+        "<code>dsize</code> — TCP payload size match",
+        "<code>pcre</code> — regex: /pattern/flags",
+        "<code>fast_pattern</code> — force this content checked first",
+        "<code>detection_filter: track by_src, count N, seconds N</code>"
+      ]},
+      right:{title:"Sticky Buffers &amp; Encrypted Traffic",items:[
+        "<code>http_method · http_uri · http_cookie</code>",
+        "<code>http_user_agent · http_client_body · http_header</code>",
+        "<code>flow:established,to_server</code> — direction control",
+        "<code>ja3.hash</code> — match TLS JA3 fingerprint",
+        "TLS cert inspection: |55 04 03| = commonName ASN.1 OID",
+        "|16| + |0b| = TLS handshake + Certificate record type",
+        "Hex: |3a 20| = ': '  |0d 0a| = CRLF"
+      ]}
+    }
+  },
+  {
+    id:"c2-detection", cats:["rules","zeek"],
+    icon:"🎯", iconBg:"#2d0c3d",
+    title:"C2 Detection Examples", desc:"Empire, Covenant, Sliver, Cerber, Patchwork, Dridex",
+    tags:[{t:"C2 Detection",cls:"tag-rules"},{t:"JA3",cls:"tag-zeek"},{t:"IDS/IPS module",cls:"tag-source"}],
+    details:{
+      left:{title:"Detection Fingerprints",items:[
+        "<strong>Empire:</strong> GET /login/process.php · base64 cookie · no Referer/Cache/Accept",
+        "<strong>Covenant:</strong> &lt;title&gt;Hello World!&lt;/title&gt; OR fixed 312-byte dsize",
+        "<strong>Sliver HTTP:</strong> POST /(php|api…)/(login|signin…).php?X=Y URI pattern",
+        "<strong>Sliver Cookie:</strong> Set-Cookie PHPSESSID|SID|SSID = 32 hex chars",
+        "<strong>Sliver JA3:</strong> 473cd7cb9faa642487833865d516e578",
+        "<strong>Cerber UDP:</strong> 9-byte, 'hi' + 7 hex chars · detection_filter count 1/60s",
+        "<strong>Patchwork:</strong> POST .php?profile= + ddager= + &amp;r1= + no Accept/Referer",
+        "<strong>Dridex TLS:</strong> cert bytes |03 02 01 02 02 09 00| + no 'www.' in CN"
+      ]},
+      right:{title:"Approach Comparison",items:[
+        "<strong>Signature-based:</strong> unique strings, URIs, cookies, hex bytes",
+        "<strong>Behavior/anomaly:</strong> fixed dsize, beacon interval, detection_filter",
+        "<strong>Protocol analysis:</strong> flow:established, missing headers",
+        "<strong>Encrypted traffic:</strong> JA3 hash, TLS cert field inspection",
+        "PCRE flags: i=nocase · R=relative · U=HTTP URI · P=body",
+        "Avoid rules relying solely on PCRE (performance)",
+        "detection_filter count 4/10s reduces false positives (Covenant)"
+      ]}
+    }
+  }
+];
+
+// ── RENDER CARDS ───────────────────────────────────────────────────────────
+function renderCards() {
+  const grid = document.getElementById('attackGrid');
+  grid.innerHTML = cards.map(c => `
+    <div class="card" data-cats="${c.cats.join(',')}" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-icon" style="background:${c.iconBg}">${c.icon}</div>
+        <div class="card-meta">
+          <h4>${c.title}</h4>
+          <div class="desc">${c.desc}</div>
+        </div>
+      </div>
+      <div class="card-tags">${c.tags.map(t=>`<span class="tag ${t.cls}">${t.t}</span>`).join('')}</div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h5>${c.details.left.title}</h5>
+            <ul>${c.details.left.items.map(i=>`<li style="font-size:11px;margin-bottom:3px">${i}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-block">
+            <h5>${c.details.right.title}</h5>
+            <ul>${c.details.right.items.map(i=>`<li style="font-size:11px;margin-bottom:3px">${i}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCard(el) { el.classList.toggle('expanded'); }
+
+function filterCards(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(c => {
+    if (cat === 'all') { c.classList.remove('hidden'); return; }
+    c.classList.toggle('hidden', !c.dataset.cats.split(',').includes(cat));
+  });
+}
+
+// ── COMMANDS DATA ──────────────────────────────────────────────────────────
+const commands = [
+  // TCPDUMP
+  {tab:"tcpdump",color:"#76e3ea",title:"Basic Capture",subtitle:"Start capturing to file or stdout",cmds:[
+    {label:"List interfaces",code:"tcpdump -D"},
+    {label:"Capture to file",code:"sudo tcpdump -i eth0 -w /tmp/capture.pcap"},
+    {label:"Read from PCAP",code:"tcpdump -r capture.pcap"},
+    {label:"Verbose, no DNS resolution",code:"sudo tcpdump -i eth0 -vvv -n"},
+    {label:"First 100 packets, hex+ASCII",code:"sudo tcpdump -i eth0 -c 100 -X"},
+  ]},
+  {tab:"tcpdump",color:"#76e3ea",title:"BPF Filters",subtitle:"Host, port, protocol, size filtering",cmds:[
+    {label:"Filter by host",code:"sudo tcpdump -i eth0 host 10.0.0.1"},
+    {label:"TCP port 80",code:"sudo tcpdump -i eth0 tcp and port 80"},
+    {label:"Exclude SSH",code:"sudo tcpdump -i eth0 not port 22"},
+    {label:"Src host + dst port",code:"sudo tcpdump -i eth0 src host 10.0.0.5 and dst port 53"},
+    {label:"Packets > 1000 bytes",code:"sudo tcpdump -i eth0 greater 1000"},
+    {label:"Subnet",code:"sudo tcpdump -i eth0 net 192.168.1.0/24"},
+    {label:"ARP traffic only",code:"sudo tcpdump -i eth0 arp"},
+    {label:"ICMP traffic only",code:"sudo tcpdump -i eth0 icmp"},
+  ]},
+  {tab:"tcpdump",color:"#76e3ea",title:"802.11 Capture",subtitle:"Monitor mode setup for wireless analysis",cmds:[
+    {label:"Enable monitor mode",code:"sudo airmon-ng start wlan0\n# or manually:\nsudo ifconfig wlan0 down\nsudo iwconfig wlan0 mode monitor\nsudo ifconfig wlan0 up"},
+    {label:"Capture on specific channel + BSSID",code:"sudo airodump-ng -c <channel> --bssid <AP_MAC> -w capture wlan0mon"},
+    {label:"Validate MAC↔IP on a host",code:"arp -a | grep <MAC>"},
+  ]},
+  // TSHARK / WIRESHARK
+  {tab:"tshark",color:"#58a6ff",title:"tshark Field Extraction",subtitle:"CLI Wireshark — extract fields from PCAPs",cmds:[
+    {label:"Extract src/dst IPs",code:"tshark -r file.pcap -T fields -e ip.src -e ip.dst"},
+    {label:"DNS queries (live, 30s)",code:"tshark -i 1 -f \"port 53\" -T fields -e dns.qry.name 2>$null -a duration:30"},
+    {label:"NXDOMAIN responses",code:"tshark -r file.pcap -Y \"dns.flags.rcode == 3\" -T fields -e dns.qry.name"},
+    {label:"TLS ClientHello IPs + JA3",code:"tshark -r file.pcap -Y \"tls.handshake.type == 1\" -T fields -e ip.src -e ip.dst -e tls.handshake.ja3"},
+    {label:"HTTP user agents",code:"tshark -r file.pcap -Y \"http\" -T fields -e http.user_agent"},
+    {label:"Check for JNDI in Log4Shell",code:"tshark -r file.pcap -Y \"http\" -T fields -e http.user_agent 2>/dev/null | grep -i \"jndi\""},
+  ]},
+  {tab:"tshark",color:"#58a6ff",title:"Wireshark Techniques",subtitle:"Streams, TLS decrypt, file extraction",cmds:[
+    {label:"Follow TCP Stream",code:"# Display filter: tcp.stream eq 0\n# GUI: right-click → Follow → TCP Stream"},
+    {label:"Export HTTP objects",code:"# File → Export Objects → HTTP\n# Gets executables, scripts, docs over HTTP"},
+    {label:"Export SMB files",code:"# File → Export Objects → SMB\n# Lateral movement artifacts"},
+    {label:"TLS decryption via key log",code:"# Before launching browser:\n$env:SSLKEYLOGFILE = \"C:\\temp\\ssl_keys.log\"\nStart-Process chrome\n# Wireshark: Preferences → Protocols → TLS → Pre-Master-Secret log filename"},
+    {label:"Enable IPv4 reassembly",code:"# Edit → Preferences → Protocols → IPv4\n# Enable: Reassemble fragmented IPv4 datagrams"},
+    {label:"Decode base64 ICMP payload",code:"echo '<base64string>' | base64 -d"},
+  ]},
+  // ATTACK FILTERS
+  {tab:"filters",color:"#f85149",title:"ARP Attack Filters",subtitle:"Wireshark filters for ARP spoofing and scanning",cmds:[
+    {label:"All ARP traffic",code:"arp.opcode"},
+    {label:"ARP requests (broadcast scan)",code:"arp.opcode == 1"},
+    {label:"ARP replies",code:"arp.opcode == 2"},
+    {label:"Duplicate address detected (auto-flagged)",code:"arp.duplicate-address-detected && arp.opcode == 2"},
+    {label:"All traffic for a specific MAC",code:"eth.addr == <MAC1> or eth.addr == <MAC2>"},
+    {label:"Find MAC's original IP (before spoof)",code:"(arp.opcode) && ((eth.src == <MAC>) | (eth.dst == <MAC>))"},
+  ]},
+  {tab:"filters",color:"#f85149",title:"802.11 Attack Filters",subtitle:"Wireshark filters for Wi-Fi DoS and evil-twin",cmds:[
+    {label:"Deauthentication frames",code:"(wlan.fc.type == 00) and (wlan.fc.type_subtype == 12)"},
+    {label:"Deauth with default tool reason code 7",code:"(wlan.fc.type == 00) and (wlan.fc.type_subtype == 12) and (wlan.fixed.reason_code == 7)"},
+    {label:"Scope to specific AP",code:"wlan.bssid == xx:xx:xx:xx:xx:xx"},
+    {label:"Auth / association flood",code:"(wlan.bssid == <AP>) and (wlan.fc.type == 00) and\n(wlan.fc.type_subtype == 0 or wlan.fc.type_subtype == 1 or wlan.fc.type_subtype == 11)"},
+    {label:"Beacon frames (for evil-twin comparison)",code:"(wlan.fc.type == 00) and (wlan.fc.type_subtype == 8)"},
+    {label:"All traffic to evil-twin BSSID (find victims)",code:"wlan.bssid == <evil-twin-BSSID>"},
+  ]},
+  {tab:"filters",color:"#f85149",title:"TCP Scan Filters",subtitle:"Detect NULL / FIN / Xmas / ACK / SYN scans",cmds:[
+    {label:"SYN scan / flood",code:"tcp.flags.syn==1 && tcp.flags.ack==0"},
+    {label:"NULL scan (no flags)",code:"tcp.flags==0x000"},
+    {label:"FIN scan",code:"tcp.flags==0x001"},
+    {label:"Xmas scan (FIN+PSH+URG)",code:"tcp.flags==0x029"},
+    {label:"ACK scan",code:"tcp.flags.ack==1 && tcp.flags==0x010"},
+    {label:"RST flood (hijack / injection artifact)",code:"tcp.flags.reset==1"},
+  ]},
+  {tab:"filters",color:"#f85149",title:"ICMP &amp; IP Anomaly Filters",subtitle:"Tunneling, TTL attacks, spoofing detection",cmds:[
+    {label:"All ICMP (check data length)",code:"icmp"},
+    {label:"ICMP Time Exceeded (TTL evasion artifact)",code:"icmp.type == 11"},
+    {label:"IP where src == dst (LAND attack)",code:"ip.src == ip.dst"},
+    {label:"Fragmented IP packets",code:"ip.flags.mf == 1 or ip.frag_offset > 0"},
+    {label:"Implausibly low TTL (< 5)",code:"ip.ttl < 5"},
+  ]},
+  // SURICATA
+  {tab:"suricata",color:"#f0883e",title:"Running Suricata",subtitle:"Offline, live, IPS modes",cmds:[
+    {label:"Offline PCAP analysis",code:"sudo suricata -r /path/to/file.pcap -k none -l ."},
+    {label:"Live AF_PACKET mode",code:"sudo suricata -i ens160"},
+    {label:"Inline NFQ IPS mode",code:"sudo iptables -I FORWARD -j NFQUEUE\nsudo suricata -q 0"},
+    {label:"Run with custom rules on PCAP",code:"sudo suricata -r file.pcap -l . -k none -S /home/htb-student/local.rules"},
+    {label:"Validate config",code:"sudo suricata -T -c /etc/suricata/suricata.yaml"},
+    {label:"Live rule reload (no restart)",code:"sudo kill -usr2 $(pidof suricata)"},
+  ]},
+  {tab:"suricata",color:"#f0883e",title:"eve.json &amp; Outputs",subtitle:"Parsing Suricata logs with jq",cmds:[
+    {label:"Filter alerts only",code:"cat eve.json | jq -c 'select(.event_type == \"alert\")'"},
+    {label:"First DNS event",code:"cat eve.json | jq -c 'select(.event_type == \"dns\")' | head -1 | jq ."},
+    {label:"View fast.log",code:"cat fast.log"},
+    {label:"File extraction config",code:"# In suricata.yaml:\n# file-store:\n#   version: 2\n#   enabled: yes\n#   force-filestore: yes\n\n# Rule to store all HTTP files:\nalert http any any -> any any (msg:\"FILE store all\"; filestore; sid:2; rev:1;)"},
+    {label:"Update rulesets",code:"sudo suricata-update\nsudo suricata-update enable-source et/open\nsudo suricata-update\nsudo systemctl restart suricata"},
+  ]},
+  {tab:"suricata",color:"#f0883e",title:"C2 Detection Rules",subtitle:"Empire, Covenant, Sliver, Dridex",cmds:[
+    {label:"PowerShell Empire HTTP C2",code:"alert http $HOME_NET any -> $EXTERNAL_NET any (\n  msg:\"ET MALWARE Possible PowerShell Empire Activity Outbound\";\n  flow:established,to_server;\n  content:\"GET\"; http_method;\n  content:\"/\"; http_uri; depth:1;\n  pcre:\"/^(?:login\\/process|admin\\/get|news)\\.php$/RU\";\n  content:\"session=\"; http_cookie;\n  content:!\"Referer\"; content:!\"Cache\"; content:!\"Accept\";\n  sid:2027512; rev:1;)"},
+    {label:"Covenant C2 — body signature",code:"alert tcp any any -> $HOME_NET any (\n  msg:\"detected by body\";\n  content:\"<title>Hello World!</title>\";\n  detection_filter: track by_src, count 4, seconds 10;\n  priority:1; sid:3000011;)"},
+    {label:"Covenant C2 — fixed 312-byte beacon",code:"alert tcp $HOME_NET any -> any any (\n  msg:\"detected by size and counter\";\n  dsize:312;\n  detection_filter: track by_src, count 3, seconds 10;\n  priority:1; sid:3000001;)"},
+    {label:"Sliver C2 — JA3 fingerprint",code:"alert tls any any -> any any (\n  msg:\"Sliver C2 SSL\";\n  ja3.hash; content:\"473cd7cb9faa642487833865d516e578\";\n  sid:1002; rev:1;)"},
+    {label:"Extract JA3 from PCAP",code:"ja3 -a --json /path/to/file.pcap\n# or tshark:\ntshark -r file.pcap -Y \"tls.handshake.type == 1\" -T fields -e ip.src -e tls.handshake.ja3\n# or Zeek:\n/usr/local/zeek/bin/zeek -C -r file.pcap && cat ssl.log | /usr/local/zeek/bin/zeek-cut ja3"},
+  ]},
+  // SNORT
+  {tab:"snort",color:"#bc8cff",title:"Running Snort",subtitle:"Offline analysis with custom rules",cmds:[
+    {label:"Run Snort on PCAP",code:"sudo snort -c /root/snorty/etc/snort/snort.lua \\\n           --daq-dir /usr/local/lib/daq \\\n           -R /home/htb-student/local.rules \\\n           -r /path/to/file.pcap \\\n           -A cmg"},
+    {label:"Count alerts for SID",code:"sudo snort -c /root/snorty/etc/snort/snort.lua --daq-dir /usr/local/lib/daq \\\n  -R /home/htb-student/local.rules -r file.pcap \\\n  -A cmg 2>&1 | grep \"\\[1:XXXXXXX\\]\" | wc -l"},
+  ]},
+  {tab:"snort",color:"#bc8cff",title:"Rule Management",subtitle:"Editing and testing rules",cmds:[
+    {label:"Find rule by SID",code:"grep \"XXXXXXX\" /home/htb-student/local.rules"},
+    {label:"Uncomment a rule",code:"sed -i 's/^#\\(.*sid:XXXXXXX.*\\)/\\1/' /home/htb-student/local.rules"},
+    {label:"Comment out a rule",code:"sed -i 's/^alert\\(.*sid:XXXXXXX.*\\)/#alert\\1/' /home/htb-student/local.rules"},
+    {label:"EternalBlue — fix offset 9→4",code:"sed -i 's/offset:9/offset:4/' /home/htb-student/local.rules"},
+    {label:"Cerber ransomware rule",code:"alert udp $HOME_NET any -> $EXTERNAL_NET any (\n  msg:\"Possible Cerber Check-in\";\n  dsize:9;\n  content:\"hi\", depth 2, fast_pattern;\n  pcre:\"/^[af0-9]{7}$/R\";\n  detection_filter:track by_src, count 1, seconds 60;\n  sid:2816763; rev:4;)"},
+    {label:"Patchwork APT HTTP beacon",code:"alert http $HOME_NET any -> $EXTERNAL_NET any (\n  msg:\"OISF TROJAN Patchwork CnC Beacon\";\n  flow:established,to_server;\n  http_method; content:\"POST\";\n  http_uri; content:\".php?profile=\";\n  http_client_body; content:\"ddager=\", depth 7;\n  http_client_body; content:\"&r1=\", distance 0;\n  http_header; content:!\"Accept\";\n  http_header; content:!\"Referer|3a|\";\n  sid:10000006; rev:1;)"},
+  ]},
+  // ZEEK
+  {tab:"zeek",color:"#76e3ea",title:"Running Zeek",subtitle:"PCAP analysis and log extraction",cmds:[
+    {label:"Run Zeek on PCAP",code:"/usr/local/zeek/bin/zeek -C -r /path/to/file.pcap"},
+    {label:"Extract specific columns",code:"cat conn.log | /usr/local/zeek/bin/zeek-cut id.orig_h id.resp_h orig_bytes"},
+    {label:"DNS query inspection",code:"cat dns.log | /usr/local/zeek/bin/zeek-cut query | cut -d . -f1-7"},
+  ]},
+  {tab:"zeek",color:"#76e3ea",title:"Behavioral Detection",subtitle:"Beaconing, DNS exfil, TLS exfil, PsExec",cmds:[
+    {label:"Top talkers by bytes (TLS exfil detection)",code:"cat conn.log | /usr/local/zeek/bin/zeek-cut id.orig_h id.resp_h orig_bytes \\\n  | sort | grep -v -e '^$' | grep -v '-' \\\n  | datamash -g 1,2 sum 3 | sort -k 3 -rn | head -10"},
+    {label:"Beaconing detection (Empire)",code:"/usr/local/zeek/bin/zeek -C -r psempire.pcap\n# In conn.log look for:\n# - same id.resp_h (51.15.197.127:80)\n# - periodic ts deltas (~5s)\n# - consistent orig_bytes / resp_bytes"},
+    {label:"DNS exfil detection",code:"/usr/local/zeek/bin/zeek -C -r dnsexfil.pcapng\ncat dns.log | /usr/local/zeek/bin/zeek-cut query | cut -d . -f1-7\n# Hundreds of unique subdomains, hex-encoded labels = tunneling"},
+    {label:"PsExec — SMB + DCE/RPC",code:"/usr/local/zeek/bin/zeek -C -r psexec_add_user.pcap\ncat smb_files.log\n# PSEXESVC.exe FILE_OPEN then FILE_DELETE on ADMIN$\ncat dce_rpc.log | /usr/local/zeek/bin/zeek-cut named_pipe endpoint operation\n# OpenSCManagerW → CreateServiceWOW64W → StartServiceW → DeleteService"},
+    {label:"PrintNightmare — spooler functions",code:"/usr/local/zeek/bin/zeek -C -r printnightmare.pcap\ncat dce_rpc.log | /usr/local/zeek/bin/zeek-cut named_pipe endpoint operation"},
+    {label:"REvil Kaseya — bytes to specific IP",code:"/usr/local/zeek/bin/zeek -C -r revilkaseya.pcap\ncat conn.log | /usr/local/zeek/bin/zeek-cut id.orig_h id.resp_h orig_bytes \\\n  | grep \"178.23.155.240\" \\\n  | awk '{sum += $3} END {print sum}'"},
+  ]},
+];
+
+// ── RENDER COMMANDS ────────────────────────────────────────────────────────
+let activeTab = 'tcpdump';
+
+function renderCmds(tab) {
+  const grid = document.getElementById('cmdGrid');
+  grid.innerHTML = commands.filter(c => c.tab === tab).map(c => `
+    <div class="cmd-block">
+      <div class="cmd-block-header" onclick="toggleCmdBlock(this)">
+        <div class="cmd-type-dot" style="background:${c.color}"></div>
+        <div style="flex:1">
+          <div class="cmd-title">${c.title}</div>
+          <div class="cmd-subtitle">${c.subtitle}</div>
+        </div>
+      </div>
+      <div class="cmd-bodies">
+        ${c.cmds.map(cmd => `
+          <div class="cmd-body">
+            <div class="cmd-body-label">${cmd.label}</div>
+            <div class="cmd-pre-wrap">
+              <pre class="cmd-pre">${escHtml(cmd.code)}</pre>
+              <button class="copy-btn" onclick="copyCmd(this,${JSON.stringify(cmd.code)})">copy</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCmdBlock(header) {
+  const b = header.nextElementSibling;
+  b.style.display = b.style.display === 'none' ? 'flex' : 'none';
+}
+
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.cmd-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCmds(tab);
+  document.getElementById('cmdSearch').value = '';
+}
+
+function filterCmds() {
+  const q = document.getElementById('cmdSearch').value.toLowerCase().trim();
+  if (!q) { renderCmds(activeTab); return; }
+  const grid = document.getElementById('cmdGrid');
+  const matched = commands.filter(c => c.tab === activeTab && (
+    c.title.toLowerCase().includes(q) || c.subtitle.toLowerCase().includes(q) ||
+    c.cmds.some(cmd => cmd.label.toLowerCase().includes(q) || cmd.code.toLowerCase().includes(q))
+  ));
+  grid.innerHTML = matched.map(c => `
+    <div class="cmd-block">
+      <div class="cmd-block-header" onclick="toggleCmdBlock(this)">
+        <div class="cmd-type-dot" style="background:${c.color}"></div>
+        <div style="flex:1">
+          <div class="cmd-title">${c.title}</div>
+          <div class="cmd-subtitle">${c.subtitle}</div>
+        </div>
+      </div>
+      <div class="cmd-bodies">
+        ${c.cmds.filter(cmd => !q || cmd.label.toLowerCase().includes(q) || cmd.code.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)).map(cmd => `
+          <div class="cmd-body">
+            <div class="cmd-body-label">${cmd.label}</div>
+            <div class="cmd-pre-wrap">
+              <pre class="cmd-pre">${escHtml(cmd.code)}</pre>
+              <button class="copy-btn" onclick="copyCmd(this,${JSON.stringify(cmd.code)})">copy</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyCmd(btn, code) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+renderCards();
+renderCmds('tcpdump');
+</script>
+</body>
+</html>

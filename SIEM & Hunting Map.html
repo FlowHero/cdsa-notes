@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SIEM &amp; Threat Hunting – Knowledge Map</title>
+<style>
+:root {
+  --bg:#0d1117; --bg2:#161b22; --bg3:#21262d; --border:#30363d;
+  --text:#c9d1d9; --muted:#8b949e;
+  --red:#f85149; --red-d:#3d1212; --red-b:#7d2020;
+  --blue:#58a6ff; --blue-d:#0c1d3d; --blue-b:#1a4080;
+  --green:#3fb950; --green-d:#0c3d1d; --green-b:#1a6030;
+  --yellow:#e3b341; --yellow-d:#3d2c0c;
+  --purple:#bc8cff; --purple-d:#2d0c3d; --purple-b:#5a2e9a;
+  --orange:#f0883e; --orange-d:#3d1e0c;
+  --cyan:#76e3ea; --cyan-d:#0c2d3d; --cyan-b:#0a4a52;
+  --pink:#ff79c6; --pink-d:#3d0c2d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,sans-serif;font-size:13px;line-height:1.5}
+a{color:var(--blue);text-decoration:none}
+
+header{padding:28px 32px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+header h1{font-size:22px;font-weight:700;letter-spacing:.5px;color:#fff}
+header p{color:var(--muted);margin-top:4px;font-size:12px}
+
+.section{padding:24px 32px}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* NOTE FLOW */
+.note-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center}
+.note-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative}
+.note-box.blue{border-color:var(--blue-b);background:var(--blue-d)}
+.note-box.purple{border-color:var(--purple-b);background:var(--purple-d)}
+.note-box.cyan{border-color:var(--cyan-b);background:var(--cyan-d)}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.badge-blue{background:var(--blue-b);color:var(--blue)}
+.badge-purple{background:var(--purple-b);color:var(--purple)}
+.badge-cyan{background:var(--cyan-b);color:var(--cyan)}
+.badge-green{background:var(--green-b);color:var(--green)}
+.badge-yellow{background:var(--yellow-d);color:var(--yellow)}
+.badge-orange{background:var(--orange-d);color:var(--orange)}
+.note-box h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.note-box .file{font-size:11px;color:var(--muted);font-family:monospace;margin-bottom:10px}
+.note-box ul{padding-left:14px;font-size:12px;display:flex;flex-direction:column;gap:3px}
+.note-box ul li{color:var(--text)}
+.flow-arrow{text-align:center;font-size:22px;color:var(--muted);padding:0 8px}
+
+/* FILTERS */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue)}
+.filter-btn.active{background:var(--blue-d);border-color:var(--blue);color:var(--blue)}
+
+/* HUNT CARDS */
+.hunt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s,transform .1s;cursor:pointer}
+.card:hover{border-color:var(--muted);transform:translateY(-1px)}
+.card.expanded{border-color:var(--cyan)}
+.card-header{padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.card-meta{flex:1}
+.card-meta h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.card-meta .desc{font-size:12px;color:var(--muted)}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px 10px}
+.tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.tag-sysmon{background:#1a1a2a;color:var(--purple);border:1px solid #2a2a4a}
+.tag-security{background:#0a1a1a;color:var(--cyan);border:1px solid #0a3a4a}
+.tag-elastic{background:#1a1a0a;color:var(--yellow);border:1px solid #4a3a0a}
+.tag-mitre{background:#2a0c0c;color:var(--red);border:1px solid #5a1a1a}
+.tag-splunk{background:#0a0a2a;color:var(--blue);border:1px solid #1a1a5a}
+.tag-stat{background:#0c2a0c;color:var(--green);border:1px solid #1a4a1a}
+
+.card-detail{display:none;padding:14px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.card.expanded .card-detail{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.detail-block{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px}
+.detail-block h5{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+.detail-block p,.detail-block li{font-size:12px;color:var(--text)}
+.detail-block ul{padding-left:14px;display:flex;flex-direction:column;gap:3px}
+.detail-block pre{font-family:'Cascadia Code','Fira Code',monospace;font-size:11px;color:#e6edf3;background:var(--bg);padding:8px 10px;border-radius:4px;white-space:pre-wrap;word-break:break-all;margin-top:4px;line-height:1.5}
+.eid-pill{display:inline-block;background:#0c3d1d;color:var(--green);border:1px solid #1a6030;border-radius:4px;padding:1px 7px;font-size:11px;font-family:monospace;font-weight:700;margin:2px 2px 2px 0}
+.card.hidden{display:none}
+
+/* INVESTIGATION CHAINS */
+.chain-container{display:flex;flex-direction:column;gap:10px}
+.chain-row{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.chain-node{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--text)}
+.chain-node.alert{border-color:var(--red-b);color:var(--red);background:var(--red-d)}
+.chain-node.pivot{border-color:var(--yellow-d);color:var(--yellow);background:var(--yellow-d)}
+.chain-node.confirm{border-color:var(--green-b);color:var(--green);background:var(--green-d)}
+.chain-arrow{color:var(--cyan);font-weight:700;margin:0 4px}
+.chain-label{font-size:11px;color:var(--muted);margin-left:auto}
+
+/* SPL TABLE */
+.spl-table{width:100%;border-collapse:collapse;font-size:12px}
+.spl-table th{background:var(--bg3);color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.spl-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.spl-table tr:hover td{background:var(--bg2)}
+.spl-table .cmd{font-family:monospace;font-weight:700;color:var(--cyan);font-size:12px}
+.spl-table .purpose{color:var(--text)}
+.spl-table .example{font-family:monospace;font-size:11px;color:var(--muted)}
+
+/* PYRAMID */
+.pyramid{display:flex;flex-direction:column;gap:4px;align-items:center}
+.pyr-level{border-radius:6px;padding:8px 16px;text-align:center;font-size:12px;font-weight:700;transition:transform .15s;cursor:default}
+.pyr-level:hover{transform:scale(1.02)}
+.pyr-sub{font-size:10px;font-weight:400;opacity:.8;margin-top:2px}
+
+/* QUERY TABS */
+.cmd-tab{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.cmd-tab:hover{border-color:var(--cyan);color:var(--cyan)}
+.cmd-tab.active{background:var(--cyan-d);border-color:var(--cyan);color:var(--cyan)}
+.cmd-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.cmd-block-header{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer}
+.cmd-block-header:hover .cmd-title{color:var(--cyan)}
+.cmd-type-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cmd-title{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.cmd-subtitle{font-size:11px;color:var(--muted);margin-top:2px}
+.cmd-bodies{padding:0 16px 14px 16px;display:flex;flex-direction:column;gap:8px}
+.cmd-body{background:var(--bg);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cmd-body-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:6px 12px 4px;border-bottom:1px solid var(--border)}
+.cmd-pre-wrap{position:relative}
+.cmd-pre{font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:#e6edf3;background:var(--bg);padding:10px 44px 10px 14px;margin:0;white-space:pre-wrap;word-break:break-all;line-height:1.6}
+.copy-btn{position:absolute;top:7px;right:8px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{background:var(--cyan-d);border-color:var(--cyan);color:var(--cyan)}
+.copy-btn.copied{background:var(--green-d);border-color:var(--green-b);color:var(--green)}
+.cmd-block.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SIEM &amp; Threat Hunting – Knowledge Map</h1>
+  <p>Visual bridge across: <strong>Security Monitoring &amp; SIEM Fundamentals</strong> &nbsp;|&nbsp; <strong>Introduction to Threat Hunting &amp; Hunting With Elastic</strong> &nbsp;|&nbsp; <strong>Understanding Log Sources &amp; Investigating with Splunk</strong></p>
+</header>
+
+<!-- ══ SECTION 1 – HOW THE 3 MODULES CONNECT ══ -->
+<div class="section">
+  <div class="section-title">How the 3 Modules Connect</div>
+  <div class="note-flow">
+
+    <div class="note-box blue">
+      <span class="badge badge-blue">SIEM Foundations</span>
+      <h3>Security Monitoring &amp; SIEM Fundamentals</h3>
+      <div class="file">SIEM Fundamentals</div>
+      <ul>
+        <li>SIEM architecture &amp; components</li>
+        <li>Forwarders → Indexers → Search Heads</li>
+        <li>Log source types &amp; normalization</li>
+        <li>Alert lifecycle &amp; triage</li>
+        <li>Correlation rules &amp; use-cases</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">Feeds intel<br>into hunts</span></div>
+
+    <div class="note-box purple">
+      <span class="badge badge-purple">Threat Hunting</span>
+      <h3>Intro to Threat Hunting &amp; Elastic</h3>
+      <div class="file">Threat Hunting.md</div>
+      <ul>
+        <li>Pyramid of Pain (Hash → TTP)</li>
+        <li>Diamond Model (4 vertices)</li>
+        <li>IOCs: hashes, IPs, domains, TTPs</li>
+        <li>Hypothesis-driven hunting</li>
+        <li>Elastic KQL / EQL queries</li>
+      </ul>
+    </div>
+
+    <div class="flow-arrow">&#8594;<br><span style="font-size:10px;color:var(--muted)">SPL queries<br>operationalize</span></div>
+
+    <div class="note-box cyan">
+      <span class="badge badge-cyan">Splunk Investigation</span>
+      <h3>Log Sources &amp; Investigating with Splunk</h3>
+      <div class="file">Understanding Log Sources &amp; Investigating with Splunk.md</div>
+      <ul>
+        <li>SPL: stats, eval, rex, transaction</li>
+        <li>Statistical outlier detection</li>
+        <li>MITRE ATT&amp;CK mapped queries</li>
+        <li>Sysmon EID 1/3/7/8/10 queries</li>
+        <li>DCSync, LSASS, Injection hunting</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="margin-top:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--muted)">
+    <strong style="color:var(--yellow)">The Pipeline:</strong>
+    &nbsp;SIEM Fundamentals defines <em>what to collect and how</em> &rarr;
+    Threat Hunting frameworks define <em>what to look for and why</em> (IOCs, TTPs, Pyramid of Pain) &rarr;
+    Splunk turns those hypotheses into <em>concrete SPL queries</em> against Sysmon / Security event data.
+    &nbsp;&nbsp;Everything converges on <strong style="color:var(--cyan)">Event IDs + statistical analysis</strong>.
+  </div>
+</div>
+
+<!-- ══ SECTION 2 – HUNTING SCENARIO CARDS ══ -->
+<div class="section">
+  <div class="section-title">Hunting Scenarios – click to expand</div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterCards('all',this)">All</button>
+    <button class="filter-btn" onclick="filterCards('cred',this)">Credential Access</button>
+    <button class="filter-btn" onclick="filterCards('exec',this)">Execution</button>
+    <button class="filter-btn" onclick="filterCards('lateral',this)">Lateral Movement</button>
+    <button class="filter-btn" onclick="filterCards('persist',this)">Persistence</button>
+    <button class="filter-btn" onclick="filterCards('c2',this)">C2 / Exfil</button>
+    <button class="filter-btn" onclick="filterCards('inject',this)">Injection</button>
+    <button class="filter-btn" onclick="filterCards('stat',this)">Statistical</button>
+    <button class="filter-btn" onclick="filterCards('elastic',this)">Elastic Hunt</button>
+  </div>
+
+  <div class="hunt-grid" id="huntGrid"></div>
+</div>
+
+<!-- ══ SECTION 3 – INVESTIGATION WORKFLOWS ══ -->
+<div class="section">
+  <div class="section-title">Investigation Workflows – SOC triage chains</div>
+  <div class="chain-container">
+
+    <div class="chain-row">
+      <div class="chain-node alert">EID 4662 fired</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Access_Mask=0x100?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Account_Name not machine ($)?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">DCSync confirmed</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Rotate krbtgt (×2, 10h apart)</div>
+      <div class="chain-label">Full domain compromise assumed → rotate all creds</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">EID 10 on lsass.exe</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">SourceImage = unusual process?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">CallTrace has UNKNOWN region?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Memory injection dump</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Isolate host, pull memory image</div>
+      <div class="chain-label">Check parent of SourceImage; correlate EID 1 for process spawn</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">Suspicious EID 1</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Image in AppData / Temp?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">LOLBin (mshta/rundll32/wscript)?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">EID 3 → C2 callback?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Block IP, trace persistence</div>
+      <div class="chain-label">transaction EID 1→3 on same Image within 1m</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">EID 4624 LogonType=3 spike</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Multiple src IPs, same account?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Time-bucket 15m → count</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Lateral movement confirmed</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Map all accessed hosts</div>
+      <div class="chain-label">Pass-the-Hash / Pass-the-Ticket pattern</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">Threat Hunt hypothesis</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Identify relevant IOC type</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Pyramid of Pain level?</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Build detection query</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Convert to SIEM alert rule</div>
+      <div class="chain-label">Higher PoP level = harder for attacker to evade</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">High DLL load count</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">EID 7, dc(ImageLoaded) &gt; 3 / hr</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">Exclude System32 / ProgramFiles</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">Suspicious image identified</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">Hash lookup + parent review</div>
+      <div class="chain-label">DLL search-order hijacking or reflective loading</div>
+    </div>
+
+    <div class="chain-row">
+      <div class="chain-node alert">invoice.one downloaded (EID 15/11)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">ONENOTE.EXE → cmd.exe → invoice.bat (EID 1)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node">PowerShell pulls Pastebin script (EID 1+3)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node pivot">default.exe RAT + Ngrok C2 (EID 22 DNS)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node alert">PSExec → PKI server (svc-sql1 compromised)</div>
+      <span class="chain-arrow">&rarr;</span>
+      <div class="chain-node confirm">SharpHound AD recon → full domain compromise</div>
+      <div class="chain-label">Stuxbot APT – Elastic/Kibana IOC-driven hunt (Threat Hunting.md)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SECTION 4 – SPL COMMAND REFERENCE ══ -->
+<div class="section">
+  <div class="section-title">SPL Command Cross-Reference</div>
+  <table class="spl-table">
+    <thead>
+      <tr>
+        <th>Command</th>
+        <th>Purpose</th>
+        <th>Detection Use Case</th>
+        <th>Example Snippet</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="cmd">stats count by</td><td class="purpose">Aggregate events by field</td><td>Count process creations per Image</td><td class="example">| stats count by ParentImage, Image</td></tr>
+      <tr><td class="cmd">stats dc()</td><td class="purpose">Distinct count of values</td><td>Unique DLLs loaded per process per hour</td><td class="example">| stats dc(ImageLoaded) as unique_dlls by _time, Image</td></tr>
+      <tr><td class="cmd">eval</td><td class="purpose">Create / transform fields</td><td>Flag outliers, measure cmd length</td><td class="example">| eval len=len(CommandLine)</td></tr>
+      <tr><td class="cmd">streamstats</td><td class="purpose">Rolling window statistics</td><td>24h avg+stdev for connection count</td><td class="example">| streamstats time_window=24h avg(cnt) as avg stdev(cnt) as stdev by Image</td></tr>
+      <tr><td class="cmd">eventstats</td><td class="purpose">Global stats added as fields</td><td>Compare each bucket to global avg</td><td class="example">| eventstats avg(cmdCount) as avg stdev(cmdCount) as stdev</td></tr>
+      <tr><td class="cmd">bucket _time span=</td><td class="purpose">Time-bin events</td><td>Per-hour DLL loads, cmd.exe spikes</td><td class="example">| bucket _time span=1h</td></tr>
+      <tr><td class="cmd">transaction</td><td class="purpose">Group correlated events</td><td>EID 1→3 chain, repeated process spawns</td><td class="example">| transaction Image startswith=eval(EventCode=1) endswith=eval(EventCode=3) maxspan=1m</td></tr>
+      <tr><td class="cmd">mvcount()</td><td class="purpose">Count multi-value field entries</td><td>Same process created &gt;1× on same host</td><td class="example">| where mvcount(ProcessGuid) &gt; 1</td></tr>
+      <tr><td class="cmd">rex</td><td class="purpose">Regex field extraction</td><td>Extract GUIDs from EID 4662 Object fields</td><td class="example">| rex max_match=0 "[^%](?&lt;guid&gt;{.*})"</td></tr>
+      <tr><td class="cmd">lookup</td><td class="purpose">Enrich from CSV/KV store</td><td>Flag known malware hashes / bad IPs</td><td class="example">| lookup malware_lookup.csv filename OUTPUTNEW is_malware</td></tr>
+      <tr><td class="cmd">subsearch [ ]</td><td class="purpose">Filter with nested search</td><td>Exclude top-100 common images</td><td class="example">NOT [ search ... | top limit=100 Image | fields Image ]</td></tr>
+      <tr><td class="cmd">where match()</td><td class="purpose">Regex condition filter</td><td>LOLBin detection in CommandLine</td><td class="example">| where match(CommandLine,"(mshta|rundll32|wscript)")</td></tr>
+      <tr><td class="cmd">sort -count</td><td class="purpose">Order results descending</td><td>Rank noisiest processes / IPs first</td><td class="example">| sort -count</td></tr>
+      <tr><td class="cmd">dedup</td><td class="purpose">Remove duplicates</td><td>Unique images seen in EID 1</td><td class="example">| dedup Image</td></tr>
+      <tr><td class="cmd">table</td><td class="purpose">Select columns for output</td><td>Readable triage output</td><td class="example">| table _time, User, Image, CommandLine</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ SECTION 5 – FRAMEWORKS ══ -->
+<div class="section">
+  <div class="section-title">Threat Hunting Frameworks</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+    <!-- Pyramid of Pain -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Pyramid of Pain</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Higher = more painful for attacker to change = better detection value</div>
+      <div class="pyramid">
+        <div class="pyr-level" style="background:#3d1212;border:1px solid #7d2020;color:var(--red);width:180px">
+          TTPs
+          <div class="pyr-sub">Tactics, Techniques, Procedures</div>
+        </div>
+        <div class="pyr-level" style="background:#3d2010;border:1px solid #7d4010;color:var(--orange);width:220px">
+          Tools
+          <div class="pyr-sub">Malware, scripts, custom binaries</div>
+        </div>
+        <div class="pyr-level" style="background:#3d2c0c;border:1px solid #7d5c1c;color:var(--yellow);width:260px">
+          Network / Host Artifacts
+          <div class="pyr-sub">Logs, registry keys, file paths, memory</div>
+        </div>
+        <div class="pyr-level" style="background:#1a1a2a;border:1px solid #3a3a6a;color:var(--purple);width:300px">
+          Domain Names
+          <div class="pyr-sub">DGA / dynamic DNS – moderately easy to change</div>
+        </div>
+        <div class="pyr-level" style="background:#0c1a2a;border:1px solid #1a3a5a;color:var(--blue);width:340px">
+          IP Addresses
+          <div class="pyr-sub">VPN / proxy / TOR – easy to rotate</div>
+        </div>
+        <div class="pyr-level" style="background:#0c2a0c;border:1px solid #1a5a1a;color:var(--green);width:380px">
+          Hash Values
+          <div class="pyr-sub">MD5 / SHA1 / SHA256 – trivial to recompile</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--muted)">
+        <strong style="color:var(--yellow)">Key insight:</strong> Detecting at TTP level forces adversary to fundamentally change their behaviour. Hash-only detection is trivially bypassed.
+      </div>
+    </div>
+
+    <!-- Diamond Model + IOC types -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Diamond Model of Intrusion Analysis</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Four vertices; an event links all four</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="background:var(--red-d);border:1px solid var(--red-b);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">&#x2694;</div>
+            <div style="font-weight:700;color:var(--red);font-size:12px">Adversary</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Who — cybercriminals, insiders, APTs, state actors</div>
+          </div>
+          <div style="background:var(--purple-d);border:1px solid var(--purple-b);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">&#x2699;</div>
+            <div style="font-weight:700;color:var(--purple);font-size:12px">Capability</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">What — malware, exploits, custom tools, TTPs</div>
+          </div>
+          <div style="background:var(--blue-d);border:1px solid var(--blue-b);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">&#x1F5A7;</div>
+            <div style="font-weight:700;color:var(--blue);font-size:12px">Infrastructure</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Where — C2 servers, IPs, domains, botnets</div>
+          </div>
+          <div style="background:var(--cyan-d);border:1px solid var(--cyan-b);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-size:18px;margin-bottom:4px">&#x1F3AF;</div>
+            <div style="font-weight:700;color:var(--cyan);font-size:12px">Victim</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Who hit — org, system, person, data asset</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px">
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:10px">IOC Types &amp; Detection Value</div>
+        <table style="width:100%;font-size:11px;border-collapse:collapse">
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;color:var(--green);font-weight:700">File Hashes</td>
+            <td style="padding:5px 8px;color:var(--muted)">MD5, SHA-1, SHA-256 — exact match</td>
+            <td style="padding:5px 8px"><span style="color:var(--red);font-size:10px">Low value</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;color:var(--blue);font-weight:700">IP Addresses</td>
+            <td style="padding:5px 8px;color:var(--muted)">C2 IPs, scan sources — easily rotated</td>
+            <td style="padding:5px 8px"><span style="color:var(--orange);font-size:10px">Low-Med</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;color:var(--purple);font-weight:700">Domain Names</td>
+            <td style="padding:5px 8px;color:var(--muted)">DGA domains, fast-flux — moderate</td>
+            <td style="padding:5px 8px"><span style="color:var(--yellow);font-size:10px">Medium</span></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:5px 8px;color:var(--yellow);font-weight:700">Artifacts</td>
+            <td style="padding:5px 8px;color:var(--muted)">Registry keys, file paths, log patterns</td>
+            <td style="padding:5px 8px"><span style="color:var(--cyan);font-size:10px">High</span></td>
+          </tr>
+          <tr>
+            <td style="padding:5px 8px;color:var(--red);font-weight:700">TTPs</td>
+            <td style="padding:5px 8px;color:var(--muted)">Behavioural patterns — hardest to change</td>
+            <td style="padding:5px 8px"><span style="color:var(--green);font-size:10px">Highest</span></td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECTION 6 – QUERY LIBRARY ══ -->
+<div class="section">
+  <div class="section-title">SPL Query Library</div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px">
+    <button class="cmd-tab active" onclick="switchTab('detection',this)">Detection</button>
+    <button class="cmd-tab" onclick="switchTab('statistical',this)">Statistical Analysis</button>
+    <button class="cmd-tab" onclick="switchTab('mitre',this)">MITRE ATT&amp;CK</button>
+    <button class="cmd-tab" onclick="switchTab('baseline',this)">Baseline &amp; Explore</button>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <input id="cmdSearch" type="text" placeholder="Search queries, techniques, commands…"
+      oninput="filterCmds()"
+      style="width:100%;max-width:500px;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;outline:none"/>
+  </div>
+
+  <div id="cmdGrid" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<style>
+.cmd-badges{display:flex;flex-wrap:wrap;gap:5px;padding:0 16px 12px 38px}
+</style>
+
+<script>
+// ══ HUNT CARDS DATA ══
+const cards = [
+  {
+    id:'dcsync', cats:['cred'],
+    icon:'🔑', iconBg:'#3d1212',
+    title:'DCSync Attack Detection',
+    desc:'Attacker impersonates a DC to replicate all NTLM hashes via MS-DRSR',
+    tags:[{cls:'tag-security',txt:'Security Log'},{cls:'tag-mitre',txt:'T1003.006'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['4662'],
+    what:'A non-machine account triggers DS-Replication-Get-Changes-All (Access Mask 0x100) on the domain object. Mimikatz lsadump::dcsync or impacket-secretsdump.',
+    sources:['Windows Security Log','Active Directory audit'],
+    query:`index="main" EventCode=4662 Access_Mask=0x100 Account_Name!=*$`,
+    followup:`# Full domain compromise assumed
+# Rotate krbtgt TWICE, 10+ hours apart
+# Check for golden ticket creation`,
+    mitre:'T1003.006 – OS Credential Dumping: DCSync',
+    fp:'Machine accounts ($) replicate normally – always filter them out'
+  },
+  {
+    id:'lsass', cats:['cred','inject'],
+    icon:'🧠', iconBg:'#2d0c3d',
+    title:'LSASS Credential Dumping',
+    desc:'Process opens a handle to lsass.exe to extract credentials from memory',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 10'},{cls:'tag-mitre',txt:'T1003.001'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['10'],
+    what:'Sysmon EID 10 (ProcessAccess) fires when any process opens lsass.exe. Attackers use Mimikatz sekurlsa::logonpasswords, or inject into another process to evade detection.',
+    sources:['Sysmon Operational'],
+    query:`index="main" EventCode=10 lsass
+| stats count by SourceImage
+
+# Drill into suspicious source
+index="main" EventCode=10 lsass SourceImage="C:\\Windows\\System32\\notepad.exe"`,
+    followup:`# Unknown memory region = injection
+index="main" CallTrace="*UNKNOWN*" SourceImage!="*Microsoft.NET*"
+  CallTrace!=*ni.dll* CallTrace!=*clr.dll* CallTrace!=*wow64*
+  SourceImage!="C:\\Windows\\Explorer.EXE"
+| where SourceImage!=TargetImage
+| stats count by SourceImage, TargetImage, CallTrace`,
+    mitre:'T1003.001 – LSASS Memory',
+    fp:'AV/EDR products legitimately access lsass – whitelist known security tools'
+  },
+  {
+    id:'injection', cats:['inject','exec'],
+    icon:'💉', iconBg:'#3d1212',
+    title:'Process Injection (EID 8)',
+    desc:'CreateRemoteThread detected – classic cross-process injection technique',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 8'},{cls:'tag-mitre',txt:'T1055'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['8'],
+    what:'Sysmon EID 8 fires on CreateRemoteThread. Attackers use this to inject shellcode or DLLs into trusted processes. technique_id=T1055 tag added by Sysmon config.',
+    sources:['Sysmon Operational'],
+    query:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=8 "technique_id=T1055"
+| table _time, host, TaskCategory, SourceImage, TargetImage`,
+    followup:`# Look for unknown memory calltraces
+index="main" CallTrace="*UNKNOWN*"
+| stats count by EventCode`,
+    mitre:'T1055 – Process Injection',
+    fp:'Some legitimate dev tools (debuggers) use CreateRemoteThread'
+  },
+  {
+    id:'lolbin', cats:['exec'],
+    icon:'🔧', iconBg:'#3d2c0c',
+    title:'LOLBin Execution (T1203)',
+    desc:'Attacker abuses native Windows binaries to execute payloads and evade detection',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 1'},{cls:'tag-mitre',txt:'T1203'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['1'],
+    what:'Living-off-the-land binaries: mshta, powershell, cmd, wscript, cscript, rundll32, regsvr32. Often spawned from suspicious parents or run from AppData/Temp.',
+    sources:['Sysmon Operational'],
+    query:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| where match(CommandLine, ".*(mshta|powershell|cmd|wscript|cscript|rundll32|regsvr32).*")
+| table _time, User, Image, CommandLine`,
+    followup:`# Execution from suspicious paths
+index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+  (Image="*\\AppData\\*" OR Image="*\\Temp\\*")
+| table _time, User, Image, CommandLine`,
+    mitre:'T1203 – Exploitation for Client Execution; T1218 – System Binary Proxy Execution',
+    fp:'Many legitimate installers use msiexec/rundll32 – add ParentImage exclusions'
+  },
+  {
+    id:'c2net', cats:['c2'],
+    icon:'📡', iconBg:'#0c2d3d',
+    title:'C2 Network Connections',
+    desc:'Beaconing or exfil to non-standard ports; statistical outlier detection on outbound connections',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 3'},{cls:'tag-mitre',txt:'T1573'},{cls:'tag-stat',txt:'Statistical'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['3'],
+    what:'C2 frameworks beacon regularly. Looking for non-80/443 egress, or high-frequency low-variance connections. T1573 uses encrypted channels (port 443) for stealth.',
+    sources:['Sysmon Operational','Firewall logs'],
+    query:`# Non-standard port egress
+index="main" sourcetype="WinEventLog:Sysmon" EventCode=3
+  DestinationPort!=80 DestinationPort!=443
+| stats count by DestinationIp | sort -count
+
+# Encrypted channel exfil
+index="main" sourcetype="WinEventLog:Sysmon" EventCode=3 DestinationPort=443
+| stats count by DestinationIp | sort -count`,
+    followup:`# Statistical beaconing detection
+index="main" sourcetype="WinEventLog:Sysmon" EventCode=3
+| bin _time span=1h
+| stats count as NetworkConnections by _time, Image
+| streamstats time_window=24h avg(NetworkConnections) as avg stdev(NetworkConnections) as stdev by Image
+| eval isOutlier=if(NetworkConnections > (avg + (0.5*stdev)), 1, 0)
+| search isOutlier=1`,
+    mitre:'T1573 – Encrypted Channel; T1071 – Application Layer Protocol',
+    fp:'Browser, update services create many connections – baseline first'
+  },
+  {
+    id:'lateral', cats:['lateral'],
+    icon:'↔', iconBg:'#0c1d3d',
+    title:'Lateral Movement via SMB',
+    desc:'Network logon events indicating pass-the-hash or pass-the-ticket across machines',
+    tags:[{cls:'tag-security',txt:'Security EID 4624'},{cls:'tag-mitre',txt:'T1550'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['4624'],
+    what:'LogonType=3 (network) from multiple source IPs to multiple targets using the same account. Classic PtH/PtT pattern. Also look for admin shares (\\\\HOST\\C$).',
+    sources:['Windows Security Log'],
+    query:`index="main" sourcetype="WinEventLog:Security" EventCode=4624 LogonType=3
+| stats count by Account_Name, Source_Network_Address
+| sort -count`,
+    followup:`# Admin account interactive + network logons
+index="main" sourcetype="WinEventLog:Security" EventCode=4624
+  (LogonType=2 OR LogonType=10)
+| stats count by Account_Name, ComputerName
+| sort -count`,
+    mitre:'T1550.002 – Pass the Hash; T1550.003 – Pass the Ticket',
+    fp:'Service accounts often use LogonType=3 legitimately – filter known service accounts'
+  },
+  {
+    id:'persist', cats:['persist'],
+    icon:'🔒', iconBg:'#3d1e0c',
+    title:'Scheduled Task Persistence',
+    desc:'New scheduled task created for execution on reboot or time trigger',
+    tags:[{cls:'tag-security',txt:'Security EID 4698'},{cls:'tag-mitre',txt:'T1053.005'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['4698'],
+    what:'EID 4698 fires when a scheduled task is created. Attackers use schtasks or XML-based task creation to maintain persistence across reboots.',
+    sources:['Windows Security Log'],
+    query:`index="main" sourcetype="WinEventLog:Security" EventCode=4698
+| table _time, User, TaskName, CommandLine`,
+    followup:`# Correlate with process that created the task
+index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+  (Image="*schtasks.exe" OR CommandLine="*SchTasks*")
+| table _time, User, CommandLine, ParentImage`,
+    mitre:'T1053.005 – Scheduled Task',
+    fp:'Windows Update and AV products create scheduled tasks routinely'
+  },
+  {
+    id:'dll', cats:['inject','exec'],
+    icon:'📦', iconBg:'#2d0c3d',
+    title:'Anomalous DLL Loading',
+    desc:'Process loads an unusually high number of unique DLLs in a short window',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 7'},{cls:'tag-stat',txt:'Statistical'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['7'],
+    what:'EID 7 (ImageLoaded) fires on every DLL load. Malware performing reflective DLL injection or DLL search-order hijacking loads unusual DLLs from non-standard paths.',
+    sources:['Sysmon Operational'],
+    query:`index="main" EventCode=7
+  NOT (Image="C:\\Windows\\System32*")
+  NOT (Image="C:\\Program Files (x86)*")
+  NOT (Image="C:\\Program Files*")
+  NOT (Image="C:\\ProgramData*")
+| bucket _time span=1h
+| stats dc(ImageLoaded) as unique_dlls_loaded by _time, Image
+| where unique_dlls_loaded > 3
+| stats count by Image, unique_dlls_loaded
+| sort - unique_dlls_loaded`,
+    followup:`# Drill into specific image
+index="main" EventCode=7 Image="<suspicious_path>"
+| table _time, Image, ImageLoaded, Signed, Signature`,
+    mitre:'T1574.001 – DLL Search Order Hijacking; T1055.001 – DLL Injection',
+    fp:'Some apps load many plugins legitimately – browser extensions, Office add-ins'
+  },
+  {
+    id:'cmdspike', cats:['exec','stat'],
+    icon:'📊', iconBg:'#0c3d1d',
+    title:'Statistical cmd.exe Anomaly',
+    desc:'cmd.exe execution frequency spikes beyond baseline using eventstats outlier detection',
+    tags:[{cls:'tag-sysmon',txt:'Sysmon EID 1'},{cls:'tag-stat',txt:'Statistical'},{cls:'tag-splunk',txt:'Splunk'}],
+    eids:['1'],
+    what:'Baseline-then-detect: bucket by hour, compute global avg+stdev, flag executions that exceed avg + 1.5σ. Catches automated scripts, post-exploitation frameworks.',
+    sources:['Sysmon Operational'],
+    query:`index="main" EventCode=1 (CommandLine="*cmd.exe*")
+| bucket _time span=1h
+| stats count as cmdCount by _time User CommandLine
+| eventstats avg(cmdCount) as avg stdev(cmdCount) as stdev
+| eval isOutlier=if(cmdCount > avg+1.5*stdev, 1, 0)
+| search isOutlier=1`,
+    followup:`# Exclude common parent processes to reduce FPs
+index="main" sourcetype="WinEventLog:Sysmon" Image=*cmd.exe
+  ParentImage!="*msiexec.exe" ParentImage!="*explorer.exe"
+| eval len=len(CommandLine)
+| table User, len, CommandLine
+| sort - len`,
+    mitre:'T1059.003 – Windows Command Shell',
+    fp:'CI/CD systems and build servers run many cmd.exe instances – exclude by host'
+  },
+  {
+    id:'stuxbot', cats:['exec','lateral','c2','persist','elastic'],
+    icon:'🦠', iconBg:'#2d0c1d',
+    title:'Hunting Stuxbot APT (Elastic Stack)',
+    desc:'End-to-end hunt: phishing invoice.one → OneNote → BAT → PowerShell C2 → RAT → PSExec lateral movement → SharpHound AD recon',
+    tags:[{cls:'tag-elastic',txt:'Elastic KQL'},{cls:'tag-sysmon',txt:'Sysmon EID 1/3/11/15/22'},{cls:'tag-mitre',txt:'T1566/T1059/T1021'}],
+    eids:['1','3','11','15','22'],
+    what:'IOC-driven hunt based on Stuxbot threat intel report. Attacker sends phishing email with invoice.one (OneNote file hosted on file.io). OneNote executes embedded invoice.bat → cmd.exe → PowerShell downloads staging script from Pastebin → drops default.exe RAT → beacons to Ngrok C2 → PSExec lateral movement to PKI server using compromised svc-sql1 → SharpHound AD enumeration. Tools: Elastic/Kibana, Sysmon (windows*), Zeek DNS (zeek*).',
+    sources:['Sysmon Operational (windows*)', 'Zeek network logs (zeek*)', 'PowerShell Script Block logs'],
+    query:`// Step 1 – invoice.one browser download (Sysmon EID 15)
+event.code:15 AND file.name:*invoice.one
+
+// Step 2 – file creation with Zone.Identifier (EID 11)
+event.code:11 AND file.name:invoice.one*
+
+// Step 3 – OneNote opened the file (EID 1)
+event.code:1 AND process.command_line:*invoice.one*
+
+// Step 4 – child processes spawned by OneNote
+event.code:1 AND process.parent.name:"ONENOTE.EXE"`,
+    followup:`// Step 5 – batch file spawned PowerShell (Pastebin download)
+event.code:1 AND process.parent.command_line:*invoice.bat*
+
+// Step 6 – all activity from that PowerShell PID
+process.pid:"9944" AND process.name:"powershell.exe"
+
+// Step 7 – Zeek DNS: source IP during download window
+source.ip:192.168.28.130 AND dns.question.name:*
+
+// Step 8 – did default.exe RAT execute?
+process.name:"default.exe"
+
+// Step 9 – SharpHound AD recon executed?
+process.name:"SharpHound.exe"
+
+// Step 10 – same hash on other hosts (lateral spread)
+process.hash.sha256:018d37cbd3878258c29db3bc3f2988b6ae688843801b9abc28e6151141ab66d4
+
+// Step 11 – credential spray / lateral logons from WS001
+(event.code:4624 OR event.code:4625) AND winlog.event_data.LogonType:3 AND source.ip:192.168.28.130`,
+    mitre:'T1566 – Phishing; T1059.001 – PowerShell; T1021.002 – SMB/PSExec; T1087 – Account Discovery (SharpHound); T1573 – Encrypted C2 (Ngrok)',
+    fp:'Invoice file downloads are normal – only escalate if EID 1 confirms OneNote.exe executed the file and spawned cmd.exe'
+  },
+];
+
+// ══ QUERY LIBRARY DATA ══
+const queries = [
+  // DETECTION
+  {
+    tab:'detection', title:'DCSync via EID 4662', subtitle:'DS-Replication access by non-machine account',
+    color:'#f85149',
+    cmds:[
+      {label:'Core detection query', code:`index="main" EventCode=4662 Access_Mask=0x100 Account_Name!=*$`},
+      {label:'After confirming DCSync – rotate krbtgt', code:`# Run twice, 10+ hours apart to fully invalidate golden tickets
+# Use Microsoft KrbtgtKeys.ps1 (has audit mode + forces DC replication)`},
+    ]
+  },
+  {
+    tab:'detection', title:'LSASS Dumping via EID 10', subtitle:'Process access on lsass.exe',
+    color:'#bc8cff',
+    cmds:[
+      {label:'Count by SourceImage', code:`index="main" EventCode=10 lsass | stats count by SourceImage`},
+      {label:'Drill into suspicious process', code:`index="main" EventCode=10 lsass SourceImage="C:\\Windows\\System32\\notepad.exe"`},
+      {label:'Find injected unknown memory regions', code:`index="main" CallTrace="*UNKNOWN*" SourceImage!="*Microsoft.NET*"
+  CallTrace!=*ni.dll* CallTrace!=*clr.dll* CallTrace!=*wow64*
+  SourceImage!="C:\\Windows\\Explorer.EXE"
+| where SourceImage!=TargetImage
+| stats count by SourceImage, TargetImage, CallTrace`},
+    ]
+  },
+  {
+    tab:'detection', title:'Process Injection EID 8', subtitle:'CreateRemoteThread cross-process injection',
+    color:'#bc8cff',
+    cmds:[
+      {label:'MITRE T1055 tagged events', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=8 "technique_id=T1055"
+| table _time, host, TaskCategory, SourceImage, TargetImage`},
+      {label:'All CallTrace unknown events by EID', code:`index="main" CallTrace="*UNKNOWN*" | stats count by EventCode`},
+    ]
+  },
+  {
+    tab:'detection', title:'Suspicious Parent-Child Processes', subtitle:'cmd/powershell spawned from unexpected parents',
+    color:'#e3b341',
+    cmds:[
+      {label:'All parent-child combinations', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| stats count by ParentImage, Image`},
+      {label:'Focus on shells as children', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+  (Image="*cmd.exe" OR Image="*powershell.exe")
+| stats count by ParentImage, Image`},
+      {label:'Repeat process creation (same host)', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| transaction ComputerName, Image
+| where mvcount(ProcessGuid) > 1
+| stats count by Image, ParentImage`},
+    ]
+  },
+  {
+    tab:'detection', title:'Lateral Movement EID 4624', subtitle:'Network logons indicating PtH / PtT',
+    color:'#58a6ff',
+    cmds:[
+      {label:'Network logons by account and source IP', code:`index="main" sourcetype="WinEventLog:Security" EventCode=4624 LogonType=3
+| stats count by Account_Name, Source_Network_Address
+| sort -count`},
+      {label:'Interactive/remote admin logons', code:`index="main" sourcetype="WinEventLog:Security" EventCode=4624
+  (LogonType=2 OR LogonType=10)
+| stats count by Account_Name, ComputerName
+| sort -count`},
+    ]
+  },
+  {
+    tab:'detection', title:'Scheduled Task Creation EID 4698', subtitle:'Persistence via schtasks',
+    color:'#f0883e',
+    cmds:[
+      {label:'All new scheduled tasks', code:`index="main" sourcetype="WinEventLog:Security" EventCode=4698
+| table _time, User, TaskName, CommandLine`},
+      {label:'Correlate with schtasks.exe process', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+  (Image="*schtasks.exe" OR CommandLine="*SchTasks*")
+| table _time, User, CommandLine, ParentImage`},
+    ]
+  },
+  // STATISTICAL
+  {
+    tab:'statistical', title:'Beaconing Detection (streamstats)', subtitle:'Rolling window outlier for network connections per process',
+    color:'#3fb950',
+    cmds:[
+      {label:'24h rolling avg+stdev, flag outliers', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=3
+| bin _time span=1h
+| stats count as NetworkConnections by _time, Image
+| streamstats time_window=24h avg(NetworkConnections) as avg stdev(NetworkConnections) as stdev by Image
+| eval isOutlier=if(NetworkConnections > (avg + (0.5*stdev)), 1, 0)
+| search isOutlier=1`},
+    ]
+  },
+  {
+    tab:'statistical', title:'cmd.exe Spike (eventstats)', subtitle:'Global baseline comparison for command shell usage',
+    color:'#3fb950',
+    cmds:[
+      {label:'Hourly bucket + 1.5σ threshold', code:`index="main" EventCode=1 (CommandLine="*cmd.exe*")
+| bucket _time span=1h
+| stats count as cmdCount by _time User CommandLine
+| eventstats avg(cmdCount) as avg stdev(cmdCount) as stdev
+| eval isOutlier=if(cmdCount > avg+1.5*stdev, 1, 0)
+| search isOutlier=1`},
+      {label:'Long cmd lines (refine with parent exclusion)', code:`index="main" sourcetype="WinEventLog:Sysmon" Image=*cmd.exe
+  ParentImage!="*msiexec.exe" ParentImage!="*explorer.exe"
+| eval len=len(CommandLine)
+| table User, len, CommandLine
+| sort - len`},
+    ]
+  },
+  {
+    tab:'statistical', title:'DLL Loading Anomaly (dc + bucket)', subtitle:'Processes loading an unusual number of distinct DLLs per hour',
+    color:'#3fb950',
+    cmds:[
+      {label:'Unique DLL count > 3 per hour, excl. system paths', code:`index="main" EventCode=7
+  NOT (Image="C:\\Windows\\System32*")
+  NOT (Image="C:\\Program Files (x86)*")
+  NOT (Image="C:\\Program Files*")
+  NOT (Image="C:\\ProgramData*")
+| bucket _time span=1h
+| stats dc(ImageLoaded) as unique_dlls_loaded by _time, Image
+| where unique_dlls_loaded > 3
+| stats count by Image, unique_dlls_loaded
+| sort - unique_dlls_loaded`},
+    ]
+  },
+  {
+    tab:'statistical', title:'Repeat Process Spawning (transaction)', subtitle:'Same image created more than once on same host',
+    color:'#3fb950',
+    cmds:[
+      {label:'Find repeated spawns', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| transaction ComputerName, Image
+| where mvcount(ProcessGuid) > 1
+| stats count by Image, ParentImage`},
+      {label:'Drill into specific pair', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| transaction ComputerName, Image
+| where mvcount(ProcessGuid) > 1
+| search Image="C:\\Windows\\System32\\rundll32.exe"
+    ParentImage="C:\\Windows\\System32\\svchost.exe"
+| table CommandLine`},
+    ]
+  },
+  // MITRE
+  {
+    tab:'mitre', title:'T1595 – Active Scanning (Recon)', subtitle:'Port scans and repeated connection attempts',
+    color:'#f85149',
+    cmds:[
+      {label:'Firewall – scan activity', code:`index="main" sourcetype="firewall" action=allowed
+| stats count by src_ip, dest_ip, dest_port
+| sort -count`},
+    ]
+  },
+  {
+    tab:'mitre', title:'T1203 – Exploitation for Client Execution', subtitle:'LOLBin / interpreter-based execution',
+    color:'#f85149',
+    cmds:[
+      {label:'Detect LOLBin command execution', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| where match(CommandLine, ".*(mshta|powershell|cmd|wscript|cscript|rundll32|regsvr32).*")
+| table _time, User, Image, CommandLine`},
+    ]
+  },
+  {
+    tab:'mitre', title:'T1546 – Event Triggered Execution (Persistence)', subtitle:'Scheduled tasks for persistent execution',
+    color:'#f0883e',
+    cmds:[
+      {label:'New scheduled task creation', code:`index="main" sourcetype="WinEventLog:Security" EventCode=4698
+| table _time, User, TaskName, CommandLine`},
+    ]
+  },
+  {
+    tab:'mitre', title:'T1573 – Encrypted Channel (Exfil)', subtitle:'Data exfiltration over HTTPS to C2',
+    color:'#58a6ff',
+    cmds:[
+      {label:'High volume HTTPS connections', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=3 DestinationPort=443
+| stats count by DestinationIp
+| sort -count`},
+    ]
+  },
+  {
+    tab:'mitre', title:'T1003.006 – DCSync', subtitle:'Credential dumping via directory replication',
+    color:'#f85149',
+    cmds:[
+      {label:'DCSync detection', code:`index="main" EventCode=4662 Access_Mask=0x100 Account_Name!=*$`},
+    ]
+  },
+  {
+    tab:'mitre', title:'T1550 – Pass-the-Hash / Pass-the-Ticket', subtitle:'Use stolen credentials for authentication without knowing plaintext',
+    color:'#f85149',
+    cmds:[
+      {label:'Network logon anomalies', code:`index="main" sourcetype="WinEventLog:Security" EventCode=4624 LogonType=3
+| stats count by Account_Name, Source_Network_Address
+| sort -count`},
+    ]
+  },
+  // BASELINE
+  {
+    tab:'baseline', title:'List All Indexes', subtitle:'Enumerate available data sources',
+    color:'#8b949e',
+    cmds:[
+      {label:'All indexes with event count', code:`| eventcount summarize=false index=* | table index`},
+      {label:'All sourcetypes', code:`| metadata type=sourcetypes index=* | table sourcetype`},
+    ]
+  },
+  {
+    tab:'baseline', title:'Sysmon EventCode Distribution', subtitle:'Understand what Sysmon data you have',
+    color:'#bc8cff',
+    cmds:[
+      {label:'Count by EventCode', code:`index="main" sourcetype="WinEventLog:Sysmon"
+| stats count by EventCode`},
+      {label:'View raw Security events', code:`sourcetype="WinEventLog:Security" | table _raw`},
+    ]
+  },
+  {
+    tab:'baseline', title:'Investigate Suspicious IP Across Sources', subtitle:'Cross-sourcetype pivot on an IP',
+    color:'#58a6ff',
+    cmds:[
+      {label:'All sourcetypes mentioning IP', code:`index="main" 10.0.0.229 | stats count by sourcetype`},
+      {label:'Linux syslog for that IP', code:`index="main" 10.0.0.229 sourcetype="linux:syslog"`},
+      {label:'Windows Sysmon command lines', code:`index="main" 10.0.0.229 sourcetype="WinEventLog:sysmon"
+| stats count by CommandLine, host`},
+    ]
+  },
+  {
+    tab:'baseline', title:'Mimikatz Alert Automation', subtitle:'Trigger email when Mimikatz detected',
+    color:'#3fb950',
+    cmds:[
+      {label:'Alert on Mimikatz in CommandLine', code:`index="main" sourcetype="WinEventLog:Sysmon" EventCode=1
+| where like(CommandLine, "%mimikatz%")
+| sendemail to="soc_team@example.com" subject="ALERT: Mimikatz Detected!"`},
+    ]
+  },
+];
+
+// ══ RENDER HUNT CARDS ══
+function renderCards() {
+  const g = document.getElementById('huntGrid');
+  cards.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.cats = c.cats.join(',');
+    el.dataset.id = c.id;
+    el.innerHTML = `
+      <div class="card-header" onclick="toggleCard('${c.id}')">
+        <div class="card-icon" style="background:${c.iconBg}">${c.icon}</div>
+        <div class="card-meta">
+          <h4>${c.title}</h4>
+          <div class="desc">${c.desc}</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        ${c.tags.map(t=>`<span class="tag ${t.cls}">${t.txt}</span>`).join('')}
+        ${c.eids.map(e=>`<span class="eid-pill">${e}</span>`).join('')}
+      </div>
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h5>What's Happening</h5>
+            <p>${c.what}</p>
+          </div>
+          <div class="detail-block">
+            <h5>Log Sources</h5>
+            <ul>${c.sources.map(s=>`<li>${s}</li>`).join('')}</ul>
+            <div style="margin-top:8px;font-size:11px;color:var(--muted)"><strong style="color:var(--yellow)">MITRE:</strong> ${c.mitre}</div>
+            <div style="margin-top:4px;font-size:11px;color:var(--muted)"><strong style="color:var(--red)">FP Note:</strong> ${c.fp}</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="detail-block" style="max-width:100%">
+            <h5>Primary SPL Query</h5>
+            <pre>${escHtml(c.query)}</pre>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <div class="detail-block" style="max-width:100%">
+            <h5>Follow-Up / Drill-Down</h5>
+            <pre>${escHtml(c.followup)}</pre>
+          </div>
+        </div>
+      </div>
+    `;
+    g.appendChild(el);
+  });
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleCard(id) {
+  const el = document.querySelector(`[data-id="${id}"]`);
+  el.classList.toggle('expanded');
+}
+
+function filterCards(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(c=>{
+    if(cat==='all') { c.classList.remove('hidden'); return; }
+    const cats = c.dataset.cats.split(',');
+    c.classList.toggle('hidden', !cats.includes(cat));
+  });
+}
+
+// ══ RENDER QUERY LIBRARY ══
+let currentTab = 'detection';
+
+function renderCmds() {
+  const g = document.getElementById('cmdGrid');
+  g.innerHTML = '';
+  const search = (document.getElementById('cmdSearch')||{value:''}).value.toLowerCase();
+  queries.forEach((q,i) => {
+    if(q.tab !== currentTab) return;
+    if(search && !q.title.toLowerCase().includes(search) && !q.subtitle.toLowerCase().includes(search) && !q.cmds.some(c=>c.code.toLowerCase().includes(search)||c.label.toLowerCase().includes(search))) return;
+    const el = document.createElement('div');
+    el.className = 'cmd-block';
+    el.innerHTML = `
+      <div class="cmd-block-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="cmd-type-dot" style="background:${q.color}"></div>
+        <div style="flex:1">
+          <div class="cmd-title">${q.title}</div>
+          <div class="cmd-subtitle">${q.subtitle}</div>
+        </div>
+      </div>
+      <div class="cmd-bodies" style="display:block">
+        ${q.cmds.map((c,ci)=>`
+          <div class="cmd-body">
+            <div class="cmd-body-label">${c.label}</div>
+            <div class="cmd-pre-wrap">
+              <pre class="cmd-pre">${escHtml(c.code)}</pre>
+              <button class="copy-btn" onclick="copyCode(this,'${i}_${ci}')">Copy</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    g.appendChild(el);
+  });
+}
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.cmd-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCmds();
+}
+
+function filterCmds() { renderCmds(); }
+
+function copyCode(btn, key) {
+  const pre = btn.previousElementSibling;
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    btn.textContent='Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+renderCards();
+renderCmds();
+</script>
+</body>
+</html>
