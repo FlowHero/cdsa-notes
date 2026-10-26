@@ -3,152 +3,302 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CDSA Notes — FlowHero</title>
+  <title>CDSA Notes :: FlowHero</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #0d1117;
-      color: #c9d1d9;
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #000;
+      color: #00ff41;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
       min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* top bar */
+    .topbar {
+      border: 1px solid #00ff41;
+      padding: 4px 10px;
+      font-size: 0.7rem;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 20px;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background: #001a00;
     }
 
-    header {
+    /* ASCII header */
+    .ascii {
+      font-size: 0.55rem;
+      line-height: 1.2;
+      color: #00ff41;
       text-align: center;
-      margin-bottom: 60px;
+      margin: 10px 0 6px;
+      white-space: pre;
     }
 
-    header h1 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #f0f6fc;
-      letter-spacing: 0.02em;
+    .site-title {
+      text-align: center;
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
-    header p {
-      margin-top: 10px;
-      color: #8b949e;
-      font-size: 0.95rem;
+    .site-sub {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #00aa2a;
+      margin-bottom: 20px;
+      letter-spacing: 0.15em;
     }
 
-    .badge {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 4px 12px;
-      border: 1px solid #30363d;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      color: #58a6ff;
-      background: #161b22;
+    /* divider */
+    .divider {
+      color: #00ff41;
+      font-size: 0.7rem;
+      text-align: center;
+      margin: 14px 0;
+      letter-spacing: 0.05em;
     }
 
-    .grid {
+    /* section box */
+    .box {
+      border: 1px solid #00ff41;
+      margin-bottom: 16px;
+      background: #000;
+    }
+
+    .box-title {
+      background: #00ff41;
+      color: #000;
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: bold;
+    }
+
+    .box-body {
+      padding: 14px 16px;
+    }
+
+    /* cards table */
+    .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 960px;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 560px) {
+      .cards { grid-template-columns: 1fr; }
+      .ascii { font-size: 0.38rem; }
     }
 
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 28px 24px;
+      border: 1px solid #005500;
+      padding: 12px 14px;
       text-decoration: none;
-      color: inherit;
-      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      color: #00ff41;
+      display: block;
+      transition: background 0.1s, border-color 0.1s;
+      position: relative;
     }
 
     .card:hover {
-      border-color: #58a6ff;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(88, 166, 255, 0.08);
+      background: #001a00;
+      border-color: #00ff41;
     }
 
-    .card-icon {
-      font-size: 1.6rem;
+    .card:hover .card-title::before {
+      content: '> ';
+    }
+
+    .card-num {
+      font-size: 0.62rem;
+      color: #005500;
+      margin-bottom: 4px;
     }
 
     .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #f0f6fc;
+      font-size: 0.85rem;
+      color: #fff;
+      margin-bottom: 6px;
     }
 
     .card-desc {
-      font-size: 0.82rem;
-      color: #8b949e;
+      font-size: 0.68rem;
+      color: #00aa2a;
       line-height: 1.5;
     }
 
-    .card-arrow {
-      margin-top: auto;
-      font-size: 0.8rem;
-      color: #58a6ff;
+    .card-link {
+      font-size: 0.65rem;
+      color: #00ff41;
+      margin-top: 8px;
+      display: block;
     }
 
-    footer {
-      margin-top: 60px;
-      font-size: 0.78rem;
-      color: #484f58;
+    /* about box */
+    .about-text {
+      font-size: 0.72rem;
+      line-height: 1.8;
+      color: #00cc33;
     }
 
-    footer a {
-      color: #58a6ff;
-      text-decoration: none;
+    .about-text span { color: #fff; }
+
+    /* blink */
+    .blink {
+      animation: blink 1s step-start infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* footer */
+    .footer {
+      border-top: 1px solid #003300;
+      padding-top: 12px;
+      margin-top: 20px;
+      font-size: 0.62rem;
+      color: #005500;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .footer a { color: #00aa2a; text-decoration: none; }
+    .footer a:hover { color: #00ff41; }
+
+    .counter {
+      display: inline-block;
+      border: 1px solid #005500;
+      padding: 2px 8px;
+      font-size: 0.65rem;
+      color: #00ff41;
+      letter-spacing: 0.2em;
+      margin-top: 6px;
+      background: #000;
     }
   </style>
 </head>
 <body>
+<div class="container">
 
-  <header>
-    <h1>CDSA Notes</h1>
-    <p>HackTheBox Certified Defensive Security Analyst</p>
-    <span class="badge">FlowHero</span>
-  </header>
-
-  <div class="grid">
-    <a class="card" href="DFIR%20%26%20Malware%20Map.html">
-      <div class="card-icon">🔬</div>
-      <div class="card-title">DFIR & Malware Map</div>
-      <div class="card-desc">Digital Forensics & Incident Response. Malware analysis techniques and investigation workflows.</div>
-      <div class="card-arrow">View map →</div>
-    </a>
-
-    <a class="card" href="Windows%20Security%20Map.html">
-      <div class="card-icon">🪟</div>
-      <div class="card-title">Windows Security Map</div>
-      <div class="card-desc">Windows internals, event logs, Active Directory, and defensive hardening strategies.</div>
-      <div class="card-arrow">View map →</div>
-    </a>
-
-    <a class="card" href="SIEM%20%26%20Hunting%20Map.html">
-      <div class="card-icon">🔭</div>
-      <div class="card-title">SIEM & Hunting Map</div>
-      <div class="card-desc">SIEM rules, threat hunting methodologies, detection engineering and log analysis.</div>
-      <div class="card-arrow">View map →</div>
-    </a>
-
-    <a class="card" href="Network%20Security%20Map.html">
-      <div class="card-icon">🌐</div>
-      <div class="card-title">Network Security Map</div>
-      <div class="card-desc">Network traffic analysis, protocol inspection, IDS/IPS and packet forensics.</div>
-      <div class="card-arrow">View map →</div>
-    </a>
+  <div class="topbar">
+    <span>[ SYSTEM ONLINE ] <span class="blink">_</span></span>
+    <span>USER: FLOWHERO | STATUS: AUTHENTICATED</span>
+    <span id="clock"></span>
   </div>
 
-  <footer>
-    <a href="https://flowhero.github.io">flowhero.github.io</a> &mdash; HackTheBox CDSA Study Notes
-  </footer>
+  <pre class="ascii">
+  ██████╗██████╗ ███████╗ █████╗     ███╗   ██╗ ██████╗ ████████╗███████╗███████╗
+ ██╔════╝██╔══██╗██╔════╝██╔══██╗    ████╗  ██║██╔═══██╗╚══██╔══╝██╔════╝██╔════╝
+ ██║     ██║  ██║███████╗███████║    ██╔██╗ ██║██║   ██║   ██║   █████╗  ███████╗
+ ██║     ██║  ██║╚════██║██╔══██║    ██║╚██╗██║██║   ██║   ██║   ██╔══╝  ╚════██║
+ ╚██████╗██████╔╝███████║██║  ██║    ██║ ╚████║╚██████╔╝   ██║   ███████╗███████║
+  ╚═════╝╚═════╝ ╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚══════╝╚══════╝</pre>
 
+  <div class="site-title">:: FlowHero's Study Notes ::</div>
+  <div class="site-sub">HackTheBox Certified Defensive Security Analyst</div>
+
+  <div class="divider">+--[ NAVIGATION ]---------------------------------------------------------------------+</div>
+
+  <div class="box">
+    <div class="box-title">[ 01 ] // Knowledge Maps</div>
+    <div class="box-body">
+      <div class="cards">
+
+        <a class="card" href="DFIR%20%26%20Malware%20Map.html">
+          <div class="card-num">// MODULE_01</div>
+          <div class="card-title">DFIR &amp; Malware Map</div>
+          <div class="card-desc">Digital Forensics &amp; Incident Response.<br>Malware analysis + investigation workflows.</div>
+          <span class="card-link">[ OPEN MAP ]</span>
+        </a>
+
+        <a class="card" href="Windows%20Security%20Map.html">
+          <div class="card-num">// MODULE_02</div>
+          <div class="card-title">Windows Security Map</div>
+          <div class="card-desc">Windows internals, Event Logs,<br>Active Directory &amp; hardening.</div>
+          <span class="card-link">[ OPEN MAP ]</span>
+        </a>
+
+        <a class="card" href="SIEM%20%26%20Hunting%20Map.html">
+          <div class="card-num">// MODULE_03</div>
+          <div class="card-title">SIEM &amp; Hunting Map</div>
+          <div class="card-desc">SIEM rules, threat hunting,<br>detection engineering &amp; log analysis.</div>
+          <span class="card-link">[ OPEN MAP ]</span>
+        </a>
+
+        <a class="card" href="Network%20Security%20Map.html">
+          <div class="card-num">// MODULE_04</div>
+          <div class="card-title">Network Security Map</div>
+          <div class="card-desc">Network traffic analysis, IDS/IPS,<br>protocol inspection &amp; packet forensics.</div>
+          <span class="card-link">[ OPEN MAP ]</span>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="box-title">[ 02 ] // About</div>
+    <div class="box-body">
+      <p class="about-text">
+        &gt; OPERATOR: <span>FlowHero</span><br>
+        &gt; CERT_PATH: <span>HackTheBox / CDSA</span><br>
+        &gt; CONTENT: <span>Interactive mind maps exported from Obsidian</span><br>
+        &gt; PURPOSE: <span>Defensive security study reference</span><br>
+        &gt; PORTFOLIO: <span><a href="https://flowhero.github.io" style="color:#00ff41">flowhero.github.io</a></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="divider">+-------------------------------------------------------------------------------------+</div>
+
+  <div class="footer">
+    &copy; 2024 FLOWHERO — ALL RIGHTS RESERVED<br>
+    <a href="https://flowhero.github.io">[ BACK TO MAIN TERMINAL ]</a>
+    <br>
+    <div class="counter" id="counter">VISITORS: 001337</div>
+  </div>
+
+</div>
+
+<script>
+  // clock
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = h + ':' + m + ':' + s;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
 </body>
 </html>
